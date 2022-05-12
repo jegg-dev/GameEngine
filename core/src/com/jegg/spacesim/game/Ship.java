@@ -165,7 +165,7 @@ public class Ship extends IteratedEntity implements IDamageable {
         Game.lines.add(new DebugLine(t.getPosition2(), t.getPosition2().add(rb.body.getLinearVelocity().scl(0.1f)), 0, Color.CYAN));
 
         RenderSystem.getCamera().position.set(t.getPosition());
-        RenderSystem.getCamera().zoom = 0.75f;
+        RenderSystem.getCamera().zoom = 1.5f;
         Game.WriteUI("" + getTransform().getPosition2(), 0, 15);
         Game.WriteUI("laser level: " + miningBeam.strength, 0, 30);
         Game.WriteUI("health: " + health, 0, 45);
