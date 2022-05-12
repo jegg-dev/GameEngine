@@ -21,8 +21,7 @@ public class ShapeRenderSystem extends SortedIteratingSystem {
     private ComponentMapper<CircleRenderer> circleM;
 
     public ShapeRenderSystem(ShapeRenderer renderer){
-        super(Family.all(Transform.class).one(Transform.class, CircleRenderer.class).exclude(InactiveFlag.class).get(), new ZComparator());
-
+        super(Family.all(Transform.class).one(PolygonRenderer.class, CircleRenderer.class).exclude(InactiveFlag.class).get(), new ZComparator());
         transformM = ComponentMapper.getFor(Transform.class);
         polygonM = ComponentMapper.getFor(PolygonRenderer.class);
         circleM = ComponentMapper.getFor(CircleRenderer.class);

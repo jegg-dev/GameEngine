@@ -55,6 +55,26 @@ public class Ship extends IteratedEntity implements IDamageable {
         poly.poly = new Polygon(verts);
         poly.color = Color.GOLD;
 
+        ParticleSystem particles = Game.CreateComponent(ParticleSystem.class);
+        particles.transform = t;
+        particles.particleColor = Color.PURPLE;
+        particles.useEllipseRender = true;
+        particles.particleScale.set(0.25f, 0.25f);
+        particles.particleLocalVelocity.set(0, -1.25f);
+        particles.emissionLocalOffset.set(0, -1f);
+        particles.useConeEmission = true;
+        particles.coneEmissionRotation = 270f;
+        particles.coneEmissionAngle = 25f;
+        particles.coneEmissionLength = 2.0f;
+        particles.maxParticles = 100;
+        particles.systemPlayTime = 10;
+        particles.particleSpawnTime = 0.025f;
+        particles.particleLifetime = 0.5f;
+        particles.looping = true;
+        particles.useCollisions = true;
+        add(particles);
+        particles.play();
+
         Rigidbody rb = Game.CreateRigidbody(verts, BodyDef.BodyType.DynamicBody, 1);
         rb.body.setAngularDamping(5);
         rb.body.setUserData(this);
