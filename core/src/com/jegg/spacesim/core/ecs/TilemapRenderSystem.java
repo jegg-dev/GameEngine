@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+import com.jegg.spacesim.core.GameCamera;
 import com.jegg.spacesim.game.TerrainMap;
 import com.jegg.spacesim.game.TileDatabase;
 
@@ -35,11 +36,11 @@ public class TilemapRenderSystem extends SortedIteratingSystem {
         super.update(deltaTime);
         //renderQueue.sort(comparator);
 
-        renderer.setProjectionMatrix(RenderSystem.getCamera().combined);
-        renderer.begin(ShapeRenderer.ShapeType.Line);
+        //renderer.setProjectionMatrix(GameCamera.GetMain().getCombined());
+        //renderer.begin(ShapeRenderer.ShapeType.Line);
         for(Entity entity : renderQueue){
             RenderedTilemap tm = tilemapM.get(entity);
-            Vector2 pos = new Vector2(tm.TileToChunkPosition(tm.WorldToTilePosition(RenderSystem.getCamera().position)));
+            Vector2 pos = new Vector2(tm.TileToChunkPosition(tm.WorldToTilePosition(GameCamera.GetMain().getPosition())));
             tm.update(pos);
             for(int x = (int)pos.x - (tm.viewDist * tm.getChunkWidth()); x < pos.x + ((tm.viewDist + 1) * tm.getChunkWidth()); x++){
                 for(int y = (int)pos.y - (tm.viewDist * tm.getChunkWidth()); y < pos.y + ((tm.viewDist + 1) * tm.getChunkWidth()); y++){
@@ -51,7 +52,7 @@ public class TilemapRenderSystem extends SortedIteratingSystem {
                 }
             }
         }
-        renderer.end();
+        //renderer.end();
         renderQueue.clear();
     }
 

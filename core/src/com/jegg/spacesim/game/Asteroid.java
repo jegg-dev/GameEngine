@@ -40,15 +40,17 @@ public class Asteroid extends Entity {
                     vertsBIndex = 0;
                 }
             }
-            Game.DestroyEntity(this);
             SpaceGenerator.CreateAsteroid(t.getPosition(), vertsA, new Vector2(MathUtils.random(-0.2f, 0.2f), MathUtils.random(-0.2f, 0.2f)));
             SpaceGenerator.CreateAsteroid(t.getPosition(), vertsB, new Vector2(MathUtils.random(-0.2f, 0.2f), MathUtils.random(-0.2f, 0.2f)));
+            Game.DestroyEntity(this);
         }
         else{
             Loot loot = new Loot(Color.GRAY);
             Vector3 position = t.getPosition();
-            float rotation = t.getRotation() * MathUtils.degreesToRadians;
-            loot.getComponent(Rigidbody.class).body.setTransform(position.x, position.y, rotation);
+            float rotation = t.getRotation();
+            loot.getComponent(Rigidbody.class).body.setTransform(position.x, position.y, rotation * MathUtils.degreesToRadians);
+            loot.getComponent(Transform.class).setPosition(position);
+            loot.getComponent(Transform.class).setRotation(rotation);
             Game.DestroyEntity(this);
         }
     }

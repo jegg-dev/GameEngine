@@ -39,7 +39,7 @@ public class ParticleSystem implements Component {
     public float particleSpawnTime = 1;
     public int maxParticles = 100;
     public float systemPlayTime = 10;
-    public boolean looping;
+    public boolean loop;
     protected boolean playing;
 
     private HashMap<Entity, Vector3> particles = new HashMap<>();
@@ -52,11 +52,13 @@ public class ParticleSystem implements Component {
         spawnTimer = particleSpawnTime;
     }
 
+    public boolean isPlaying() { return playing; }
+
     protected void update(float deltaTime){
         systemTimer -= deltaTime;
         spawnTimer -= deltaTime;
         if(systemTimer <= 0){
-            if(looping){
+            if(loop){
                 systemTimer = systemPlayTime;
             }
             else stop(); return;
@@ -154,7 +156,6 @@ public class ParticleSystem implements Component {
             Polygon poly = new Polygon(particleVerts);
             poly.setScale(particleScale.x, particleScale.y);
             Rigidbody rb = Game.CreateRigidbody(poly.getTransformedVertices(), BodyDef.BodyType.DynamicBody, 0.01f);
-            //rb.body.setLinearVelocity(particleVelocity);
             rb.body.setTransform(pos.x, pos.y, transform.getRotation() * MathUtils.degreesToRadians);
             particle.add(rb);
         }

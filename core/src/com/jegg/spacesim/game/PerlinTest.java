@@ -3,6 +3,7 @@ package com.jegg.spacesim.game;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 import com.jegg.spacesim.core.Game;
+import com.jegg.spacesim.core.GameCamera;
 import com.jegg.spacesim.core.PerlinNoise;
 import com.jegg.spacesim.core.ecs.IteratedEntity;
 import com.jegg.spacesim.core.ecs.IteratedFlag;
@@ -59,7 +60,7 @@ public class PerlinTest extends IteratedEntity {
     @Override
     public void update(float deltaTime) {
         ShapeRenderer sr = new ShapeRenderer();
-        sr.setProjectionMatrix(RenderSystem.getCamera().combined);
+        sr.setProjectionMatrix(GameCamera.GetMain().getCombined());
         sr.begin(ShapeRenderer.ShapeType.Line);
         for(int x = -500; x < 500; x += 1.5f){
             for(int y = -500; y < 500; y += 1.5f){

@@ -6,12 +6,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
-import com.jegg.spacesim.core.DebugLine;
-import com.jegg.spacesim.core.Game;
-import com.jegg.spacesim.core.Physics;
-import com.jegg.spacesim.core.RaycastHit;
-import com.jegg.spacesim.core.ecs.Input;
-import com.jegg.spacesim.core.ecs.RenderSystem;
+import com.jegg.spacesim.core.*;
 import com.jegg.spacesim.core.ecs.Transform;
 
 public class ShipMiningBeam {
@@ -32,7 +27,7 @@ public class ShipMiningBeam {
     public void use(float deltaTime){
         beamTimer -= deltaTime;
         if(beamTimer <= 0){
-            Vector2 mousePos = new Vector2(Game.ScreenToWorld(Input.mousePos).x, Game.ScreenToWorld(Input.mousePos).y);
+            Vector2 mousePos = new Vector2(GameCamera.GetMain().screenToWorld(Input.MousePos).x, GameCamera.GetMain().screenToWorld(Input.MousePos).y);
             Vector2 dir = mousePos.cpy().sub(ship.turret.getComponent(Transform.class).getPosition2());
             float dist = dir.len();
             dist = MathUtils.clamp(dist, 0.0f, 10.0f);
@@ -56,13 +51,13 @@ public class ShipMiningBeam {
                     if(TileDatabase.Get(terrain.tilemap.getTile(pos)).hardness <= strength) {
                         if (miningBody == closestBody) {
                             miningProgress += deltaTime;
-                            ShapeRenderer sr = new ShapeRenderer();
-                            sr.setProjectionMatrix(RenderSystem.getCamera().combined);
+                            /*ShapeRenderer sr = new ShapeRenderer();
+                            sr.setProjectionMatrix(GameCamera.GetMain().getCombined());
                             sr.begin(ShapeRenderer.ShapeType.Line);
                             sr.setColor(Color.RED);
                             float extent = miningProgress / miningSpeed * terrain.tilemap.getTileWidth() / 2;
                             sr.box(pos.x + (terrain.tilemap.getTileWidth() / 2) - extent, pos.y + (terrain.tilemap.getTileWidth() / 2) - extent, 0, extent * 2, extent * 2, 0);
-                            sr.end();
+                            sr.end();*/
                             if (miningProgress >= miningSpeed) {
                                 terrain.removeTile(pos);
                                 miningProgress = 0;

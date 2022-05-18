@@ -5,6 +5,8 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.jegg.spacesim.core.GameCamera;
+import com.jegg.spacesim.core.Input;
 import com.jegg.spacesim.core.PerlinNoise;
 import com.jegg.spacesim.core.Physics;
 import com.jegg.spacesim.core.ecs.*;
@@ -12,6 +14,7 @@ import com.jegg.spacesim.core.ecs.*;
 import java.util.ArrayList;
 
 public class TerrainMap extends RenderedTilemap {
+    public static boolean ShowChunkOutlines;
 
     public CollisionTilemap collider;
     public PrimitiveTilemap healthMap;
@@ -36,9 +39,9 @@ public class TerrainMap extends RenderedTilemap {
 
     @Override
     public void update(Vector2 chunkPos) {
-        if(Settings.ShowChunkOutlines) {
+        if(ShowChunkOutlines) {
             ShapeRenderer sr = new ShapeRenderer();
-            sr.setProjectionMatrix(RenderSystem.getCamera().combined);
+            sr.setProjectionMatrix(GameCamera.GetMain().getCombined());
             sr.begin(ShapeRenderer.ShapeType.Line);
             sr.setColor(Color.RED);
             for (int x = (int) chunkPos.x - (viewDist * getChunkWidth()); x < chunkPos.x + ((viewDist + 1) * getChunkWidth()); x += getChunkWidth()) {

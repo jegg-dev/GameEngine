@@ -3,73 +3,101 @@ package com.jegg.spacesim.core;
 import com.badlogic.ashley.core.*;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Camera;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.PolygonShape;
-import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.scenes.scene2d.*;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.jegg.spacesim.core.ecs.*;
+import com.jegg.spacesim.core.ecs.Transform;
 import com.jegg.spacesim.game.*;
 
-import java.util.List;
-
 public class Game extends ApplicationAdapter {
-
 	private static Engine engine;
-	private Input input;
-	private static CollisionSystem collisionSystem;
-	private static OrthographicCamera gameCamera;
-	private static OrthographicCamera uiCamera;
-	private static SpriteBatch batch;
-	private static BitmapFont font;
-	private float radius = 1;
+	private static Stage uiStage;
+	private Label fpsCounter;
+	private Label contactsCounter;
+	private static GameCamera gameCamera;
+	private static ShapeRenderer shapeRenderer;
 	public static boolean debugging = false;
 	public static Array<DebugLine> lines = new Array<>();
 
 	@Override
 	public void create () {
-		input = new Input();
-		Gdx.input.setInputProcessor(input);
+		Input input = new Input();
+		Input.Instance = input;
 
-		batch = new SpriteBatch();
-		RenderSystem renderSystem = new RenderSystem(batch);
-		gameCamera = RenderSystem.getCamera();
-		batch.setProjectionMatrix(gameCamera.combined);
+		Skin skin = new Skin(Gdx.files.internal("skins/flat/skin.json"));
+		uiStage = new Stage(new ScreenViewport());
+		Table table = new Table();
+		table.setFillParent(true);
+		uiStage.addActor(table);
 
-		uiCamera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		uiCamera.position.set(uiCamera.viewportWidth / 2.0f, uiCamera.viewportHeight / 2.0f, 1.0f);
-		//uiBatch = new SpriteBatch();
-		font = new BitmapFont(Gdx.files.internal("default.fnt"));
+		fpsCounter = new Label("FPS", skin);
+		Image background = new Image(new Texture(new Pixmap(0,0, Pixmap.Format.Alpha)));
+		fpsCounter.getStyle().background = background.getDrawable();
+		fpsCounter.getStyle().font.getData().setScale(0.5f, 0.5f);
+		table.top().add(fpsCounter).padLeft(5.0f).padTop(5.0f).width(25).height(15).expandX().left();
 
-		Gdx.graphics.setWindowedMode(800, 600);
-		Gdx.graphics.setVSync(false);
-		//Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
+		TextButton tb = new TextButton("Exit", skin);
+		tb.addListener(new ClickListener(){
+			@Override
+			public void clicked(InputEvent e, float x, float y){
+				Gdx.app.exit();
+			}
+		});
+		table.add(tb).width(25).height(25).right();
+
+		table.row();
+
+		contactsCounter = new Label("Contacts", skin);
+		contactsCounter.getStyle().background = background.getDrawable();
+		contactsCounter.getStyle().font.getData().setScale(0.5f, 0.5f);
+		table.add(contactsCounter).padLeft(5.0f).padBottom(5.0f).width(25).height(15).bottom().left();
+
+		table.setDebug(true);
+
+		InputMultiplexer im = new InputMultiplexer();
+		im.addProcessor(input);
+		im.addProcessor(uiStage);
+		Gdx.input.setInputProcessor(im);
+
+		Gdx.graphics.setVSync(Settings.UseVsync);
+
+		gameCamera = new GameCamera(new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
+		GameCamera.Main = gameCamera;
+		SpriteBatch batch = new SpriteBatch();
+		shapeRenderer = new ShapeRenderer();
+		shapeRenderer.setProjectionMatrix(gameCamera.getCombined());
+		batch.setProjectionMatrix(gameCamera.getCombined());
+		RenderSystem renderSystem = new RenderSystem(batch, gameCamera.orthoCam);
 
 		Physics.world = new World(new Vector2(0,0),true);
-		collisionSystem = new CollisionSystem();
-		Physics.world.setContactListener(new RigidbodyContactListener(collisionSystem));
+		ContactSystem contactSystem = new ContactSystem();
+		Physics.world.setContactListener(new RigidbodyContactListener(contactSystem));
+		Physics.world.setContinuousPhysics(false);
 
 		engine = new PooledEngine();
-		engine.addSystem(new PhysicsSystem(Physics.world));
+		engine.addSystem(new PhysicsSystem(Physics.world, contactSystem));
 		engine.addSystem(new IteratingEntitySystem());
 		engine.addSystem(renderSystem);
-		engine.addSystem(new TilemapRenderSystem(new ShapeRenderer()));
-		engine.addSystem(new ShapeRenderSystem(new ShapeRenderer()));
-		engine.addSystem(new ParticleSystemRenderer(new ShapeRenderer()));
+		engine.addSystem(new TilemapRenderSystem(shapeRenderer));
+		engine.addSystem(new ShapeRenderSystem(shapeRenderer));
+		engine.addSystem(new ParticleSystemRenderer(shapeRenderer));
 		engine.addSystem(new PhysicsDebugSystem(Physics.world, gameCamera));
 		engine.getSystem(PhysicsDebugSystem.class).setProcessing(false);
+		engine.addSystem(new GarbageSystem(engine));
 
-		new Station();
-		SpaceGenerator gen = new SpaceGenerator();
-		gen.generate();
+		//new Station();
+		//SpaceGenerator gen = new SpaceGenerator();
+		//gen.generate();
 
 		//new TerrainController();
 		//new PerlinTest();
@@ -77,15 +105,12 @@ public class Game extends ApplicationAdapter {
 		/*for(int i = 0; i < 1; i++){
 			new AIShip(ship);
 		}*/
-		//new DodgeEnemy();
 	}
 
 	@Override
 	public void render () {
 		Gdx.gl.glClearColor(0,0,0,0);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-		gameCamera.update();
 
 		if(Input.getKeyUp(Input.Escape)){
 			if(!debugging){
@@ -104,68 +129,56 @@ public class Game extends ApplicationAdapter {
 					!engine.getSystem(PhysicsDebugSystem.class).checkProcessing());
 		}
 
+		if(Input.getKey(Input.LeftControl) && Input.getKey(Input.LeftAlt) && Input.getKeyDown(Input.V)){
+			Settings.UseVsync = !Settings.UseVsync;
+			Gdx.graphics.setVSync(Settings.UseVsync);
+		}
+
 		if(debugging){
 			float x = Input.getKey(Input.D) ? 1 : Input.getKey(Input.A) ? -1 : 0;
 			float y = Input.getKey(Input.W) ? 1 : Input.getKey(Input.S) ? -1 : 0;
 			Vector3 vel = new Vector3(x,y,0);
 			vel.nor();
 			vel.scl(2);
-			gameCamera.position.add(x,y,0);
-			RenderSystem.getCamera().zoom += Input.scroll * 0.1f;
+			gameCamera.getPosition().add(x,y,0);
+			gameCamera.setZoom(gameCamera.getZoom() + (Input.Scroll * 0.1f));
 		}
 
+		shapeRenderer.setProjectionMatrix(gameCamera.getCombined());
+		shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
 		engine.update(Gdx.graphics.getDeltaTime());
-		collisionSystem.update();
 
-		ShapeRenderer shape = new ShapeRenderer();
-		shape.setProjectionMatrix(gameCamera.combined);
-		shape.begin(ShapeRenderer.ShapeType.Line);
 		Array<DebugLine> toRemove = new Array<>();
 		for(int i = 0; i < lines.size; i++){
-			shape.setColor(lines.get(i).color);
-			shape.line(lines.get(i).start.x, lines.get(i).start.y, lines.get(i).end.x, lines.get(i).end.y);
+			shapeRenderer.setColor(lines.get(i).color);
+			shapeRenderer.line(lines.get(i).start.x, lines.get(i).start.y, lines.get(i).end.x, lines.get(i).end.y);
 			lines.get(i).timer -= Gdx.graphics.getDeltaTime();
 			if(lines.get(i).timer <= 0){
 				toRemove.add(lines.get(i));
 			}
 		}
 		lines.removeAll(toRemove, true);
-		shape.end();
 
-		uiCamera.update();
+		shapeRenderer.end();
 
-		/*ShapeRenderer shape = new ShapeRenderer();
-		shape.setProjectionMatrix(uiCamera.combined);
-		shape.begin(ShapeRenderer.ShapeType.Filled);
-		shape.setColor(Color.GRAY);
-		shape.rect(0,uiCamera.viewportHeight - font.getLineHeight(), 100, font.getLineHeight());
-		shape.end();*/
+		fpsCounter.setText(Gdx.graphics.getFramesPerSecond());
+		contactsCounter.setText(PhysicsSystem.ContactsSize());
 
-		batch.setProjectionMatrix(uiCamera.combined);
-		batch.begin();
+		uiStage.getViewport().setScreenWidth(Gdx.graphics.getWidth());
+		uiStage.getViewport().setScreenHeight(Gdx.graphics.getHeight());
+		uiStage.act();
+		uiStage.draw();
 
-		font.draw(batch, "" + Gdx.graphics.getFramesPerSecond(), 0, uiCamera.viewportHeight - 5);
-		batch.end();
 		//Gdx.gl.glEnable(GL20.GL_BLEND);
 		//Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
-		/*ShapeRenderer rend = new ShapeRenderer();
-		rend.setProjectionMatrix(RenderSystem.getCamera().combined);
-		rend.begin(ShapeRenderer.ShapeType.Filled);
-		rend.setColor(1, 0, 0,0.5f);
-		radius += Gdx.graphics.getDeltaTime();
-		rend.circle(0,0,radius,100);
-		rend.end();*/
-		input.update();
+		Input.Instance.update();
 	}
 
 	@Override
 	public void resize(int width, int height){
-		gameCamera.viewportWidth = width / RenderSystem.PIXELS_PER_METER;
-		gameCamera.viewportHeight = height / RenderSystem.PIXELS_PER_METER;
-		uiCamera.viewportWidth = width;
-		uiCamera.viewportHeight = height;
-		uiCamera.position.set(uiCamera.viewportWidth / 2.0f, uiCamera.viewportHeight / 2.0f, 1.0f);
+		gameCamera.orthoCam.viewportWidth = width / RenderSystem.PIXELS_PER_METER;
+		gameCamera.orthoCam.viewportHeight = height / RenderSystem.PIXELS_PER_METER;
 	}
 
 	@Override
@@ -219,32 +232,27 @@ public class Game extends ApplicationAdapter {
 		return rb;
 	}
 
+	public static Rigidbody CreateRigidbody(BodyDef def, Shape shape, float density){
+		Rigidbody rb = CreateComponent(Rigidbody.class);
+		Body body = Physics.world.createBody(def);
+		body.createFixture(shape, density);
+		rb.body = body;
+		return rb;
+	}
+
 	public static void DestroyEntity(Entity entity){
-		if(ComponentMappers.rigidbody.get(entity) != null){
-			Physics.world.destroyBody(ComponentMappers.rigidbody.get(entity).body);
-		}
-		engine.removeEntity(entity);
+		entity.add(CreateComponent(DestroyedFlag.class));
 	}
 
 	public static void DestroyComponent(Entity entity, Class<? extends Component> component){
 		entity.remove(component);
 	}
 
-	public static Vector3 ScreenToWorld(Vector2 screenPos){
-		/*return new Vector3((screenPos.x - RenderSystem.getCamera().position.x) * RenderSystem.METERS_PER_PIXEL,
-				(RenderSystem.getCamera().position.y - screenPos.y) * RenderSystem.METERS_PER_PIXEL, 0);*.
-		 */
-		return RenderSystem.getCamera().unproject(new Vector3(screenPos.x, screenPos.y, 0));
-	}
-
-	public static Camera getUICamera(){
-		return uiCamera;
-	}
-
-	public static void WriteUI(String text, float x, float y){
-		batch.setProjectionMatrix(Game.getUICamera().combined);
-		batch.begin();
-		font.draw(batch, text, x, y);
-		batch.end();
+	public static void SetUIStage(Stage stage){
+		uiStage = stage;
+		InputMultiplexer im = new InputMultiplexer();
+		im.addProcessor(stage);
+		im.addProcessor(Input.Instance);
+		Gdx.input.setInputProcessor(im);
 	}
 }

@@ -6,14 +6,15 @@ import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
+import com.jegg.spacesim.core.GameCamera;
 
 public class PhysicsDebugSystem extends IteratingSystem {
 
     private Box2DDebugRenderer debugRenderer;
     private World world;
-    private OrthographicCamera camera;
+    private GameCamera camera;
 
-    public PhysicsDebugSystem(World world, OrthographicCamera camera){
+    public PhysicsDebugSystem(World world, GameCamera camera){
         super(Family.all().get());
         debugRenderer = new Box2DDebugRenderer();
         this.world = world;
@@ -23,7 +24,7 @@ public class PhysicsDebugSystem extends IteratingSystem {
     @Override
     public void update(float deltaTime){
         super.update(deltaTime);
-        debugRenderer.render(world, camera.combined);
+        debugRenderer.render(world, camera.getCombined());
     }
 
     @Override

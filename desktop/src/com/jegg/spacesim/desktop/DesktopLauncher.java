@@ -8,7 +8,9 @@ public class DesktopLauncher {
 	public static void main(String[] args) {
 		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
 		config.setTitle("Space Sim");
-		//config.setWindowSizeLimits(800,600,1920,1080);
+		config.setWindowedMode(800,600);
+		config.setWindowSizeLimits(800, 600, 3840, 2160);
+
 		new Lwjgl3Application(new Game(), config);
 	}
 }

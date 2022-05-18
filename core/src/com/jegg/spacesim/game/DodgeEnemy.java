@@ -4,14 +4,13 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Polygon;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.*;
 import com.jegg.spacesim.core.Game;
 import com.jegg.spacesim.core.ecs.*;
 import com.jegg.spacesim.core.ecs.Transform;
 
-public class DodgeEnemy extends IteratedEntity implements CollisionSensor {
+public class DodgeEnemy extends IteratedEntity implements ISensorContactListener {
     public float speed = 10.0f;
     public float radius = 5.0f;
     public boolean triggered;
@@ -63,15 +62,15 @@ public class DodgeEnemy extends IteratedEntity implements CollisionSensor {
     }
 
     @Override
-    public void collisionEnter(Fixture fixture, Entity collisionEntity, Contact contact){
-        if(collisionEntity instanceof Ship){
-            hitShip = (Ship)collisionEntity;
+    public void sensorContactEnter(Entity entity){
+        if(entity instanceof Ship){
+            hitShip = (Ship) entity;
             triggered = true;
         }
     }
 
     @Override
-    public void collisionExit(Fixture fixture, Entity collisionEntity, Contact contact){
+    public void sensorContactExit(Entity entity){
         hitShip = null;
         triggered = false;
     }

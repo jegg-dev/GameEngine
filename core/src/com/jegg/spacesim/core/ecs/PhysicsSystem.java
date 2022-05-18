@@ -4,38 +4,37 @@ import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IntervalIteratingSystem;
-import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
-import com.jegg.spacesim.core.Physics;
-import com.jegg.spacesim.core.ecs.Rigidbody;
-import com.jegg.spacesim.core.ecs.Transform;
 
 public class PhysicsSystem extends IntervalIteratingSystem {
 
-    private static final float TIME_STEP = 1/60f;
-    private static float timer = 0f;
+    public static final float TIME_STEP = 1/60f;
 
     protected static World world;
-    private Array<Entity> bodiesQueue;
+    private final Array<Entity> bodiesQueue;
 
-    private ComponentMapper<Rigidbody> rm = ComponentMapper.getFor(Rigidbody.class);
-    private ComponentMapper<Transform> tm = ComponentMapper.getFor(Transform.class);
-    private ComponentMapper<IteratedFlag> im = ComponentMapper.getFor(IteratedFlag.class);
+    private final ComponentMapper<Rigidbody> rm = ComponentMapper.getFor(Rigidbody.class);
+    private final ComponentMapper<Transform> tm = ComponentMapper.getFor(Transform.class);
+    private final ComponentMapper<IteratedFlag> im = ComponentMapper.getFor(IteratedFlag.class);
 
-    public PhysicsSystem(World world){
+    private static ContactSystem ContactSystem;
+
+    public PhysicsSystem(World world, ContactSystem contactSystem){
         super(Family.all(Rigidbody.class, Transform.class).exclude(StaticFlag.class).get(), TIME_STEP);
         PhysicsSystem.world = world;
         this.bodiesQueue = new Array<>();
+        PhysicsSystem.ContactSystem = contactSystem;
     }
 
     @Override
     protected void updateInterval(){
         super.updateInterval();
+
+        ContactSystem.update();
 
         world.step(TIME_STEP, 6, 2);
         for(Entity entity : bodiesQueue){
@@ -90,5 +89,11 @@ public class PhysicsSystem extends IntervalIteratingSystem {
         Rigidbody rb = rm.get(entity);
         rb.body.setTransform(t.getPosition().x, t.getPosition().y,t.getRotation() * MathUtils.degreesToRadians);
         */
+    }
+
+    public static int ContactsSize(){
+        //return CollisionSystem.contacts.size();
+        return ContactSystem.entryContacts.size() + ContactSystem.exitContacts.size() +
+                ContactSystem.sensorEntryContacts.size() + ContactSystem.sensorExitContacts.size();
     }
 }

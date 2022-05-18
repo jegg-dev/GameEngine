@@ -6,12 +6,10 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.Contact;
-import com.badlogic.gdx.physics.box2d.Fixture;
 import com.jegg.spacesim.core.Game;
 import com.jegg.spacesim.core.ecs.*;
 
-public class Loot extends IteratedEntity implements CollisionSensor {
+public class Loot extends IteratedEntity implements ISensorContactListener {
     private float timer = 5f;
 
     public Loot(Color color){
@@ -52,14 +50,14 @@ public class Loot extends IteratedEntity implements CollisionSensor {
     }
 
     @Override
-    public void collisionEnter(Fixture fixture, Entity collisionEntity, Contact contact) {
-        if(collisionEntity instanceof Ship){
+    public void sensorContactEnter(Entity entity) {
+        if(entity instanceof Ship){
             Game.DestroyEntity(this);
         }
     }
 
     @Override
-    public void collisionExit(Fixture fixture, Entity collisionEntity, Contact contact) {
+    public void sensorContactExit(Entity entity) {
 
     }
 }

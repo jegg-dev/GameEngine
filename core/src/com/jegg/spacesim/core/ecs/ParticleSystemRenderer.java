@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.jegg.spacesim.core.Game;
+import com.jegg.spacesim.core.GameCamera;
 
 import java.util.Comparator;
 
@@ -35,8 +36,7 @@ public class ParticleSystemRenderer extends SortedIteratingSystem {
         super.update(deltaTime);
         //renderQueue.sort(comparator);
 
-        renderer.setProjectionMatrix(RenderSystem.getCamera().combined);
-        renderer.begin(ShapeRenderer.ShapeType.Line);
+        //renderer.begin(ShapeRenderer.ShapeType.Line);
         for(Entity entity : renderQueue){
             ParticleSystem ps = particlesM.get(entity);
 
@@ -47,7 +47,7 @@ public class ParticleSystemRenderer extends SortedIteratingSystem {
                 ps.render(renderer);
             }
         }
-        renderer.end();
+        //renderer.end();
         renderQueue.clear();
     }
 

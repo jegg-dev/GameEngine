@@ -8,7 +8,9 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
+import com.jegg.spacesim.core.GameCamera;
 
 import java.util.Comparator;
 
@@ -26,12 +28,12 @@ public class RenderSystem extends SortedIteratingSystem {
     private SpriteBatch batch;
     private Array<Entity> renderQueue;
     private Comparator<Entity> comparator;
-    private static OrthographicCamera camera;
+    private OrthographicCamera camera;
 
     private ComponentMapper<Transform> transformM;
     private ComponentMapper<TextureRenderer> textureM;
 
-    public RenderSystem(SpriteBatch batch){
+    public RenderSystem(SpriteBatch batch, OrthographicCamera camera){
         super(Family.all(Transform.class, TextureRenderer.class).exclude(InactiveFlag.class).get(), new ZComparator());
 
         transformM = ComponentMapper.getFor(Transform.class);
@@ -39,11 +41,9 @@ public class RenderSystem extends SortedIteratingSystem {
 
         renderQueue = new Array<>();
         this.batch = batch;
-
-        camera = new OrthographicCamera(Gdx.graphics.getWidth() / PIXELS_PER_METER, Gdx.graphics.getHeight() / PIXELS_PER_METER);
+        this.camera = camera;
+        //camera = new OrthographicCamera(Gdx.graphics.getWidth() / PIXELS_PER_METER, Gdx.graphics.getHeight() / PIXELS_PER_METER);
         //camera.position.set(FRUSTUM_WIDTH / 2f, FRUSTUM_HEIGHT / 2f, 0);
-        camera.zoom = 1.5f;
-        camera.position.set(0,0,0);
     }
 
     @Override
@@ -80,9 +80,5 @@ public class RenderSystem extends SortedIteratingSystem {
     @Override
     public void processEntity(Entity entity, float deltaTime){
         renderQueue.add(entity);
-    }
-
-    public static OrthographicCamera getCamera(){
-        return camera;
     }
 }

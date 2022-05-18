@@ -2,7 +2,6 @@ package com.jegg.spacesim.game;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.ParticleEmitter;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
@@ -11,17 +10,16 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.jegg.spacesim.core.*;
 import com.jegg.spacesim.core.ecs.*;
 import com.jegg.spacesim.core.ecs.Transform;
-import com.jegg.spacesim.core.ecs.Input;
-import com.jegg.spacesim.core.ecs.RenderSystem;
+import com.jegg.spacesim.core.Input;
 
 public class Ship extends IteratedEntity implements IDamageable {
     public Player player;
     public int health = 100;
-    public int scrap;
-    public int ore;
 
     public float thrustForce = 10;
     public float turnTorque = 6;
+
+    public ParticleSystem trail;
 
     public Entity turret;
 
@@ -55,25 +53,23 @@ public class Ship extends IteratedEntity implements IDamageable {
         poly.poly = new Polygon(verts);
         poly.color = Color.GOLD;
 
-        ParticleSystem particles = Game.CreateComponent(ParticleSystem.class);
-        particles.transform = t;
-        particles.particleColor = Color.PURPLE;
-        particles.useEllipseRender = true;
-        particles.particleScale.set(0.25f, 0.25f);
-        particles.particleLocalVelocity.set(0, -1.25f);
-        particles.emissionLocalOffset.set(0, -1f);
-        particles.useConeEmission = true;
-        particles.coneEmissionRotation = 270f;
-        particles.coneEmissionAngle = 25f;
-        particles.coneEmissionLength = 2.0f;
-        particles.maxParticles = 100;
-        particles.systemPlayTime = 10;
-        particles.particleSpawnTime = 0.025f;
-        particles.particleLifetime = 0.5f;
-        particles.looping = true;
-        particles.useCollisions = true;
-        add(particles);
-        particles.play();
+        trail = Game.CreateComponent(ParticleSystem.class);
+        trail.transform = t;
+        trail.particleColor = Color.PURPLE;
+        trail.particleScale.set(0.25f, 0.25f);
+        trail.particleLocalVelocity.set(0, -1.5f);
+        trail.emissionLocalOffset.set(0, -1f);
+        trail.useConeEmission = true;
+        trail.coneEmissionRotation = 270;
+        trail.coneEmissionAngle = 45;
+        trail.coneEmissionLength = 1;
+        trail.maxParticles = 10000;
+        trail.systemPlayTime = 10;
+        trail.particleSpawnTime = 0.025f;
+        trail.particleLifetime = 5f;
+        trail.loop = true;
+        trail.useCollisions = false;
+        add(trail);
 
         Rigidbody rb = Game.CreateRigidbody(verts, BodyDef.BodyType.DynamicBody, 1);
         rb.body.setAngularDamping(5);
@@ -114,19 +110,29 @@ public class Ship extends IteratedEntity implements IDamageable {
         Transform t = getComponent(Transform.class);
         Rigidbody rb = getComponent(Rigidbody.class);
 
-        fireTime -= deltaTime;
+        if(Input.getKeyUp(Input.G)){
+            Vector3 pos = GameCamera.GetMain().screenToWorld(Input.MousePos);
+            SpaceGenerator.CreateAsteroid(pos, SpaceGenerator.AsteroidVerts, true);
+        }
 
-        Vector2 mousePos = new Vector2(Game.ScreenToWorld(Input.mousePos).x, Game.ScreenToWorld(Input.mousePos).y);
+        if(rb.body.getLinearVelocity().len() > 15.0f){
+            rb.body.setLinearVelocity(rb.body.getLinearVelocity().nor().scl(15.0f));
+        }
+
+        fireTime -= deltaTime;
+        Vector2 mousePos = new Vector2(GameCamera.GetMain().screenToWorld(Input.MousePos).x, GameCamera.GetMain().screenToWorld(Input.MousePos).y);
         Vector2 shipDir = getTransform().getPosition2().sub(mousePos);
         RaycastHit[] hits = Physics.RaycastAll(mousePos, shipDir, shipDir.len() + 0.1f);
         boolean moved = false;
-        for(RaycastHit hit : hits){
-            if(hit != null && hit.entity == this){
-                turret.getComponent(Transform.class).setPosition(new Vector3(hit.point, 0));
-                moved = true;
+        if (hits != null) {
+            for (RaycastHit hit : hits) {
+                if (hit != null && hit.entity == this) {
+                    turret.getComponent(Transform.class).setPosition(new Vector3(hit.point, 0));
+                    moved = true;
+                }
             }
         }
-        if(!moved){
+        if (!moved) {
             turret.getComponent(Transform.class).setPosition(getTransform().getPosition());
         }
 
@@ -143,14 +149,6 @@ public class Ship extends IteratedEntity implements IDamageable {
         }
 
         if(Input.getKeyUp(Input.E)){
-            /*float distance = 5f;
-            RaycastHit[] hits = Physics.RaycastAll(new Vector2(t.getPosition().x, t.getPosition().y), t.up(), distance);
-            Vector2 position1 = new Vector2(t.getPosition().x, t.getPosition().y);
-            Vector2 position2 = new Vector2(t.getPosition().x + (t.up().x * distance), t.getPosition().y + (t.up().y * distance));
-            Game.lines.add(new DebugLine(position1, position2, 0.25f, Color.RED));
-            for(RaycastHit hit : hits)
-                System.out.println(hit.entity);
-            */
             boolean acted = false;
             Entity[] entities = Physics.AABBAll(t.getPosition2(), 1f,1f);
             for(Entity e : entities){
@@ -178,19 +176,10 @@ public class Ship extends IteratedEntity implements IDamageable {
             }
         }
 
-        if(Input.getKeyUp(Input.F)){
-            rb.body.setTransform(mousePos.x, mousePos.y, 0);
-        }
-
         Game.lines.add(new DebugLine(t.getPosition2(), t.getPosition2().add(rb.body.getLinearVelocity().scl(0.1f)), 0, Color.CYAN));
 
-        RenderSystem.getCamera().position.set(t.getPosition());
-        RenderSystem.getCamera().zoom = 1.5f;
-        Game.WriteUI("" + getTransform().getPosition2(), 0, 15);
-        Game.WriteUI("laser level: " + miningBeam.strength, 0, 30);
-        Game.WriteUI("health: " + health, 0, 45);
-        Game.WriteUI("scrap: " + scrap, 0, 60);
-        Game.WriteUI("ore: " + ore, 0, 75);
+        GameCamera.GetMain().setPosition(t.getPosition());
+        GameCamera.GetMain().setZoom(1.5f);
     }
 
     @Override
@@ -215,6 +204,12 @@ public class Ship extends IteratedEntity implements IDamageable {
         }
         Vector2 thrust = t.up().scl(thrustForce);
         thrust.scl(Input.getKey(Input.W) ? 1 : Input.getKey(Input.S) ? -1 : 0);
+        if(thrust.len() > 0.0f && !trail.isPlaying()){
+            trail.play();
+        }
+        else if(thrust.len() == 0.0f && trail.isPlaying()){
+            trail.stop();
+        }
         rb.body.applyForceToCenter(thrust, true);
         rb.body.applyTorque(Input.getKey(Input.D) ? -turnTorque : Input.getKey(Input.A) ? turnTorque : 0, true);
     }

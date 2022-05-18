@@ -2,6 +2,8 @@ package com.jegg.spacesim.game;
 
 import com.badlogic.gdx.math.Vector3;
 import com.jegg.spacesim.core.Game;
+import com.jegg.spacesim.core.GameCamera;
+import com.jegg.spacesim.core.Input;
 import com.jegg.spacesim.core.ecs.*;
 
 public class TerrainController extends IteratedEntity {
@@ -24,11 +26,11 @@ public class TerrainController extends IteratedEntity {
     @Override
     public void update(float deltaTime) {
         if(Input.getKey(Input.LeftControl) && Input.getKeyUp(Input.Mouse0)){
-            Vector3 worldPos = Game.ScreenToWorld(Input.mousePos);
+            Vector3 worldPos = GameCamera.GetMain().screenToWorld(Input.MousePos);
             addTile(worldPos);
         }
         else if(Input.getKey(Input.LeftControl) && Input.getKeyUp(Input.Mouse1)){
-            Vector3 worldPos = Game.ScreenToWorld(Input.mousePos);
+            Vector3 worldPos = GameCamera.GetMain().screenToWorld(Input.MousePos);
             removeTile(worldPos);
         }
     }

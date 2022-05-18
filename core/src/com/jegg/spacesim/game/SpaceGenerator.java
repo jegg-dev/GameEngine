@@ -15,9 +15,9 @@ import com.jegg.spacesim.core.ecs.StaticFlag;
 import com.jegg.spacesim.core.ecs.Transform;
 
 public class SpaceGenerator {
-    public final float objectsPerAngle = 10;
+    public final float objectsPerAngle = 2;
     public final float angleSteps = 1;
-    public final float maxRadius = 10000;
+    public final float maxRadius = 1000;
     public final float minRadius = 10;
 
     public static final float[] AsteroidVerts = new float[]{

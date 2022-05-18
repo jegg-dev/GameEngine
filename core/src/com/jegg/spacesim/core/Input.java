@@ -1,11 +1,12 @@
-package com.jegg.spacesim.core.ecs;
+package com.jegg.spacesim.core;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
 public class Input implements InputProcessor {
+
+    protected static Input Instance;
 
     public class InputState{
         public boolean pressed, down, released;
@@ -44,7 +45,11 @@ public class Input implements InputProcessor {
     public static int Y = com.badlogic.gdx.Input.Keys.Y;
     public static int Z = com.badlogic.gdx.Input.Keys.Z;
     public static int LeftShift = com.badlogic.gdx.Input.Keys.SHIFT_LEFT;
+    public static int RightShift = com.badlogic.gdx.Input.Keys.SHIFT_RIGHT;
     public static int LeftControl = com.badlogic.gdx.Input.Keys.CONTROL_LEFT;
+    public static int RightControl = com.badlogic.gdx.Input.Keys.CONTROL_RIGHT;
+    public static int LeftAlt = com.badlogic.gdx.Input.Keys.ALT_LEFT;
+    public static int RightAlt = com.badlogic.gdx.Input.Keys.ALT_RIGHT;
     public static int Tab = com.badlogic.gdx.Input.Keys.TAB;
     public static int Space = com.badlogic.gdx.Input.Keys.SPACE;
     public static int Escape = com.badlogic.gdx.Input.Keys.ESCAPE;
@@ -63,8 +68,8 @@ public class Input implements InputProcessor {
 
     public Array<KeyState> keyStates = new Array<>();
     public Array<KeyState> buttonStates = new Array<>();
-    public static final Vector2 mousePos = new Vector2();
-    public static float scroll;
+    public static final Vector2 MousePos = new Vector2(0, 0);
+    public static float Scroll;
 
     public Input(){
         for(int i = 0; i < 256; i++){
@@ -110,19 +115,19 @@ public class Input implements InputProcessor {
 
     @Override
     public boolean touchDragged(int screenX, int screenY, int pointer) {
-        mousePos.set(screenX, screenY);
+        MousePos.set(screenX, screenY);
         return false;
     }
 
     @Override
     public boolean mouseMoved(int screenX, int screenY) {
-        mousePos.set(screenX, screenY);
+        MousePos.set(screenX, screenY);
         return false;
     }
 
     @Override
     public boolean scrolled(float amountX, float amountY) {
-        scroll = amountY;
+        Scroll = amountY;
         return false;
     }
 
@@ -135,33 +140,33 @@ public class Input implements InputProcessor {
             buttonStates.get(i).pressed = false;
             buttonStates.get(i).released = false;
         }
-        scroll = 0;
+        Scroll = 0;
     }
 
     public static boolean getKeyUp(int keycode){
         if(keycode < 256) {
-            return ((Input) Gdx.input.getInputProcessor()).keyStates.get(keycode).released;
+            return Instance.keyStates.get(keycode).released;
         }
         else{
-            return ((Input) Gdx.input.getInputProcessor()).buttonStates.get(keycode - 256).released;
+            return Instance.buttonStates.get(keycode - 256).released;
         }
     }
 
     public static boolean getKey(int keycode){
         if(keycode < 256) {
-            return ((Input) Gdx.input.getInputProcessor()).keyStates.get(keycode).down;
+            return Instance.keyStates.get(keycode).down;
         }
         else{
-            return ((Input) Gdx.input.getInputProcessor()).buttonStates.get(keycode - 256).down;
+            return Instance.buttonStates.get(keycode - 256).down;
         }
     }
 
     public static boolean getKeyDown(int keycode){
         if(keycode < 256) {
-            return ((Input) Gdx.input.getInputProcessor()).keyStates.get(keycode).pressed;
+            return Instance.keyStates.get(keycode).pressed;
         }
         else{
-            return ((Input) Gdx.input.getInputProcessor()).buttonStates.get(keycode - 256).pressed;
+            return Instance.buttonStates.get(keycode - 256).pressed;
         }
     }
 }

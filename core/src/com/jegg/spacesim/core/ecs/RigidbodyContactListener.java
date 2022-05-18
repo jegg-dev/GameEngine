@@ -1,19 +1,18 @@
 package com.jegg.spacesim.core.ecs;
 
+import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Manifold;
 
-import java.util.Arrays;
-
 public class RigidbodyContactListener implements ContactListener {
 
-    public CollisionSystem collisionSystem;
+    public ContactSystem contactSystem;
 
-    public RigidbodyContactListener(CollisionSystem collisionSystem){
-        this.collisionSystem = collisionSystem;
+    public RigidbodyContactListener(ContactSystem contactSystem){
+        this.contactSystem = contactSystem;
     }
 
     @Override
@@ -21,17 +20,17 @@ public class RigidbodyContactListener implements ContactListener {
         Fixture fa = contact.getFixtureA();
         Fixture fb = contact.getFixtureB();
 
-        /*if(fa.getBody().getUserData() instanceof CollisionSensor && fb.getBody().getUserData() instanceof Entity){
-            ((CollisionSensor)fa.getBody().getUserData()).collisionEnter((Entity)fb.getBody().getUserData());
+        if(fa.isSensor() && !fb.isSensor() && fa.getBody().getUserData() instanceof ISensorContactListener){
+            contactSystem.sensorEntryContacts.put((Entity)fa.getBody().getUserData(), (Entity)fb.getBody().getUserData());
         }
-        if(fb.getBody().getUserData() instanceof CollisionSensor && fb.getBody().getUserData() instanceof Entity){
-            ((CollisionSensor)fb.getBody().getUserData()).collisionEnter((Entity)fa.getBody().getUserData());
-        }*/
-        if(fa.getBody().getUserData() instanceof CollisionSensor){
-            collisionSystem.contacts.put(contact, CollisionSystem.ContactType.Enter);
+        else if(fb.isSensor() && !fa.isSensor() && fb.getBody().getUserData() instanceof ISensorContactListener){
+            contactSystem.sensorEntryContacts.put((Entity)fb.getBody().getUserData(), (Entity)fa.getBody().getUserData());
         }
-        else if(fb.getBody().getUserData() instanceof CollisionSensor){
-            collisionSystem.contacts.put(contact, CollisionSystem.ContactType.Enter);
+        else if(!fa.isSensor() && !fb.isSensor() && fa.getBody().getUserData() instanceof IContactListener){
+            contactSystem.entryContacts.put((Entity)fa.getBody().getUserData(), (Entity)fb.getBody().getUserData());
+        }
+        else if(!fa.isSensor() && !fb.isSensor() && fb.getBody().getUserData() instanceof IContactListener){
+            contactSystem.entryContacts.put((Entity)fb.getBody().getUserData(), (Entity)fa.getBody().getUserData());
         }
     }
 
@@ -40,18 +39,23 @@ public class RigidbodyContactListener implements ContactListener {
         Fixture fa = contact.getFixtureA();
         Fixture fb = contact.getFixtureB();
 
-        if(fa.getBody().getUserData() instanceof CollisionSensor){
-            collisionSystem.contacts.put(contact, CollisionSystem.ContactType.Exit);
+        if(fa.isSensor() && !fb.isSensor() && fa.getBody().getUserData() instanceof ISensorContactListener){
+            contactSystem.sensorExitContacts.put((Entity)fa.getBody().getUserData(), (Entity)fb.getBody().getUserData());
         }
-        else if(fb.getBody().getUserData() instanceof CollisionSensor){
-            collisionSystem.contacts.put(contact, CollisionSystem.ContactType.Exit);
+        else if(fb.isSensor() && !fa.isSensor() && fb.getBody().getUserData() instanceof ISensorContactListener){
+            contactSystem.sensorExitContacts.put((Entity)fb.getBody().getUserData(), (Entity)fa.getBody().getUserData());
         }
-    }
-    @Override
-    public void preSolve(Contact contact, Manifold oldManifold) {
+        else if(!fa.isSensor() && !fb.isSensor() && fa.getBody().getUserData() instanceof IContactListener){
+            contactSystem.exitContacts.put((Entity)fa.getBody().getUserData(), (Entity)fb.getBody().getUserData());
+        }
+        else if(!fa.isSensor() && !fb.isSensor() && fb.getBody().getUserData() instanceof IContactListener){
+            contactSystem.exitContacts.put((Entity)fb.getBody().getUserData(), (Entity)fa.getBody().getUserData());
+        }
     }
 
     @Override
-    public void postSolve(Contact contact, ContactImpulse impulse) {
-    }
+    public void preSolve(Contact contact, Manifold oldManifold) {}
+
+    @Override
+    public void postSolve(Contact contact, ContactImpulse impulse) {}
 }

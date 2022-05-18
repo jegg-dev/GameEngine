@@ -8,9 +8,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
-import com.jegg.spacesim.core.DebugLine;
-import com.jegg.spacesim.core.Game;
-import com.jegg.spacesim.core.Physics;
+import com.jegg.spacesim.core.*;
 import com.jegg.spacesim.core.ecs.*;
 
 public class Player extends IteratedEntity {
@@ -26,14 +24,11 @@ public class Player extends IteratedEntity {
 
         BodyDef def = new BodyDef();
         def.type = BodyDef.BodyType.DynamicBody;
-        Body body = Physics.CreateBody(def);
-        CircleShape circle = new CircleShape();
-        circle.setRadius(0.25f);
-        body.createFixture(circle,1);
-        body.setTransform(0, 0, 0);
-        body.setUserData(this);
-        Rigidbody rb = new Rigidbody();
-        rb.body = body;
+        CircleShape shape = new CircleShape();
+        shape.setRadius(0.5f);
+        Rigidbody rb = Game.CreateRigidbody(def, shape, 1);
+        rb.body.setUserData(this);
+        add(rb);
 
         add(t);
         add(rb);
@@ -64,15 +59,14 @@ public class Player extends IteratedEntity {
         }
 
         if(Input.getKeyUp(Input.F)){
-            Vector3 mousePos = Game.ScreenToWorld(Input.mousePos);
+            Vector3 mousePos = GameCamera.GetMain().screenToWorld(Input.MousePos);
             rb.body.setTransform(mousePos.x, mousePos.y, 0);
         }
 
         Game.lines.add(new DebugLine(t.getPosition2(), t.getPosition2().add(rb.body.getLinearVelocity().scl(0.1f)), 0, Color.GOLD));
 
-        RenderSystem.getCamera().position.set(t.getPosition());
-        RenderSystem.getCamera().zoom = 1.0f;
-        Game.WriteUI("" + getTransform().getPosition2(), 0, Game.getUICamera().viewportHeight - 20);
+        GameCamera.GetMain().setPosition(t.getPosition());
+        GameCamera.GetMain().setZoom(1.0f);
     }
 
     @Override
