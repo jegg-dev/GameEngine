@@ -40,7 +40,9 @@ public class ParticleSystem implements Component {
     public int maxParticles = 100;
     public float systemPlayTime = 10;
     public boolean loop;
+    public boolean destroyParticlesOnStop = true;
     protected boolean playing;
+    protected boolean decaying;
 
     private HashMap<Entity, Vector3> particles = new HashMap<>();
     private float systemTimer;
@@ -48,6 +50,7 @@ public class ParticleSystem implements Component {
 
     public void play(){
         playing = true;
+        decaying = false;
         systemTimer = systemPlayTime;
         spawnTimer = particleSpawnTime;
     }
@@ -61,7 +64,18 @@ public class ParticleSystem implements Component {
             if(loop){
                 systemTimer = systemPlayTime;
             }
-            else stop(); return;
+            else if(destroyParticlesOnStop){
+                stop();
+                return;
+            }
+            else if(particles.size() > 0){
+                playing = false;
+                decaying = true;
+            }
+            else{
+                decaying = false;
+                return;
+            }
         }
 
         for(Map.Entry<Entity, Vector3> e : particles.entrySet()){
@@ -75,6 +89,7 @@ public class ParticleSystem implements Component {
                 Game.DestroyEntity(e.getKey());
             }
         }
+
         if(!useCollisions) {
             for (Map.Entry<Entity, Vector3> e : tempMap.entrySet()) {
                 Transform t = ComponentMappers.transform.get(e.getKey());
@@ -86,7 +101,7 @@ public class ParticleSystem implements Component {
             }*/
         }
 
-        if(spawnTimer <= 0 && particles.size() < maxParticles){
+        if(!decaying && spawnTimer <= 0 && particles.size() < maxParticles){
             spawnTimer = particleSpawnTime;
             Entity p = createParticle();
             Vector3 data = new Vector3(0,0,0);
@@ -98,7 +113,6 @@ public class ParticleSystem implements Component {
             }
             particles.put(p, data);
         }
-
     }
 
     protected void render(ShapeRenderer sr){
@@ -123,10 +137,12 @@ public class ParticleSystem implements Component {
 
     public void stop(){
         playing = false;
-        for(Entity p : particles.keySet()){
-            Game.DestroyEntity(p);
-        }
-        particles.clear();
+        if(destroyParticlesOnStop) {
+            for (Entity p : particles.keySet()) {
+                Game.DestroyEntity(p);
+            }
+            particles.clear();
+        } else if(particles.size() > 0) decaying = true;
     }
 
     private Entity createParticle(){

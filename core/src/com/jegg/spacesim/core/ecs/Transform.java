@@ -13,7 +13,7 @@ public class Transform implements Component {
     private final Array<Transform> children = new Array<>();
     private final Vector3 localPosition = new Vector3();
     private final Vector3 position = new Vector3();
-    public final Vector2 scale = new Vector2();
+    public final Vector2 scale = new Vector2(1, 1);
     private float rotation;
     private float localRotation;
 

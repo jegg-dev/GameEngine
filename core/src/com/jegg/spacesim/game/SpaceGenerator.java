@@ -1,24 +1,28 @@
 package com.jegg.spacesim.game;
 
-import com.badlogic.ashley.core.Component;
-import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Polygon;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.utils.Array;
 import com.jegg.spacesim.core.Game;
+import com.jegg.spacesim.core.PerlinNoise;
 import com.jegg.spacesim.core.ecs.PolygonRenderer;
 import com.jegg.spacesim.core.ecs.Rigidbody;
 import com.jegg.spacesim.core.ecs.StaticFlag;
 import com.jegg.spacesim.core.ecs.Transform;
 
+import java.util.HashMap;
+
 public class SpaceGenerator {
-    public final float objectsPerAngle = 2;
-    public final float angleSteps = 1;
-    public final float maxRadius = 1000;
-    public final float minRadius = 10;
+    public final int objectsPerAngle = 2;
+    public final int angleStep = 1;
+    public final int maxRadius = 1000;
+    public final int minRadius = 50;
+    public final int radiusStep = 2;
+
+    public final int width = 5000;
+    public final int height = 5000;
+    public final float step = 5.5f;
 
     public static final float[] AsteroidVerts = new float[]{
             -0.5f,-1f,
@@ -32,11 +36,19 @@ public class SpaceGenerator {
     };
 
     public void generate(){
-        for(float angle = 0; angle < 360 - angleSteps; angle += angleSteps){
-            for(int i = 0; i < objectsPerAngle; i++){
-                float r = MathUtils.random(minRadius, maxRadius);
+        /*for(int angle = 0; angle < 360; angle += angleStep){
+            for(int r = minRadius; r < maxRadius; r += radiusStep){
                 Vector3 pos = new Vector3(r * MathUtils.cosDeg(angle), r * MathUtils.sinDeg(angle), 0);
-                SpawnRandomAsteroid(pos);
+                if(PerlinNoise.At(pos.x, pos.y, 0.5f) > 0.5f)
+                    SpawnRandomAsteroid(pos);
+            }
+        }*/
+        for(float x = -(float)width / 2; x < (float)width / 2; x += step){
+            for(float y = -(float)height / 2; y < (float)height / 2; y += step){
+                Vector3 pos = new Vector3(x, y, 0);
+                if(PerlinNoise.At(pos.x, pos.y, 0.1f) > 0.5f) {
+                    SpawnRandomAsteroid(pos);
+                }
             }
         }
     }

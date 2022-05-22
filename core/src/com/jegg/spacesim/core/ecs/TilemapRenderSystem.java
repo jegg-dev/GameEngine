@@ -38,16 +38,37 @@ public class TilemapRenderSystem extends SortedIteratingSystem {
 
         //renderer.setProjectionMatrix(GameCamera.GetMain().getCombined());
         //renderer.begin(ShapeRenderer.ShapeType.Line);
+
         for(Entity entity : renderQueue){
             RenderedTilemap tm = tilemapM.get(entity);
             Vector2 pos = new Vector2(tm.TileToChunkPosition(tm.WorldToTilePosition(GameCamera.GetMain().getPosition())));
             tm.update(pos);
+
+            if(tm instanceof TerrainMap && TerrainMap.ShowChunkOutlines) {
+                renderer.setColor(Color.RED);
+                for (int x = (int) pos.x - (tm.viewDist * tm.getChunkWidth()); x < pos.x + ((tm.viewDist + 1) * tm.getChunkWidth()); x += tm.getChunkWidth()) {
+                    for (int y = (int) pos.y - (tm.viewDist * tm.getChunkWidth()); y < pos.y + ((tm.viewDist + 1) * tm.getChunkWidth()); y += tm.getChunkWidth()) {
+                        Vector2 newChunkPos = tm.TileToChunkPosition(new Vector2(x, y));
+                        newChunkPos.scl(tm.getTileWidth());
+                        renderer.polygon(new float[]{
+                                newChunkPos.x, newChunkPos.y,
+                                newChunkPos.x + (tm.getChunkWidth() * tm.getTileWidth()), newChunkPos.y,
+                                newChunkPos.x + (tm.getChunkWidth() * tm.getTileWidth()), newChunkPos.y + (tm.getChunkWidth() * tm.getTileWidth()),
+                                newChunkPos.x, newChunkPos.y + (tm.getChunkWidth() * tm.getTileWidth())
+                        });
+                    }
+                }
+            }
+
             for(int x = (int)pos.x - (tm.viewDist * tm.getChunkWidth()); x < pos.x + ((tm.viewDist + 1) * tm.getChunkWidth()); x++){
                 for(int y = (int)pos.y - (tm.viewDist * tm.getChunkWidth()); y < pos.y + ((tm.viewDist + 1) * tm.getChunkWidth()); y++){
-                    Color color = TileDatabase.Get(tm.getTile(x, y)).color;
-                    if(color != Color.CLEAR){
-                        renderer.setColor(color);
-                        renderer.box(x * tm.getTileWidth(), y * tm.getTileWidth(), 0, tm.getTileWidth(), tm.getTileWidth(), 0);
+                    if(x / tm.getChunkWidth() > -tm.getMapWidthInChunks() / 2 && x / tm.getChunkWidth() < tm.getMapWidthInChunks() / 2
+                            && y / tm.getChunkWidth() > -tm.getMapWidthInChunks() / 2 && y / tm.getChunkWidth() < tm.getMapWidthInChunks() / 2) {
+                        Color color = TileDatabase.Get(tm.getTile(x, y)).color;
+                        if(color != Color.CLEAR){
+                            renderer.setColor(color);
+                            renderer.box(x * tm.getTileWidth(), y * tm.getTileWidth(), 0, tm.getTileWidth(), tm.getTileWidth(), 0);
+                        }
                     }
                 }
             }

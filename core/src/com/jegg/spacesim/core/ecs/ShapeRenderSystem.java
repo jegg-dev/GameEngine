@@ -51,7 +51,6 @@ public class ShapeRenderSystem extends SortedIteratingSystem {
                 if(GameCamera.GetMain().boundsInFrustum(pos, dim)){
                     continue;
                 }*/
-
                 renderer.setColor(polyr.color);
                 Polygon poly = new Polygon(polyr.poly.getTransformedVertices());
                 poly.setPosition(t.getPosition().x, t.getPosition().y);

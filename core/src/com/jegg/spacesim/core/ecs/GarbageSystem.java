@@ -1,5 +1,6 @@
 package com.jegg.spacesim.core.ecs;
 
+import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
@@ -16,6 +17,10 @@ public class GarbageSystem extends IteratingSystem {
 
     @Override
     protected void processEntity(Entity entity, float deltaTime) {
+        if(entity instanceof IteratedEntity){
+            ((IteratedEntity)entity).onDestroy();
+        }
+
         if(ComponentMappers.rigidbody.get(entity) != null){
 			Physics.GetWorld().destroyBody(ComponentMappers.rigidbody.get(entity).body);
 		}

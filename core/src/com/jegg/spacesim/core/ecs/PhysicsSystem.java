@@ -34,8 +34,6 @@ public class PhysicsSystem extends IntervalIteratingSystem {
     protected void updateInterval(){
         super.updateInterval();
 
-        ContactSystem.update();
-
         world.step(TIME_STEP, 6, 2);
         for(Entity entity : bodiesQueue){
             if(entity instanceof IteratedEntity && im.has(entity)){
@@ -47,6 +45,8 @@ public class PhysicsSystem extends IntervalIteratingSystem {
             t.setPosition(new Vector3(position.x, position.y, t.getPosition().z));
             t.setRotation(r.body.getAngle() * MathUtils.radiansToDegrees);
         }
+
+        ContactSystem.update();
 
         /*timer += Math.min(deltaTime, 0.25f);
         if(timer >= TIME_STEP) {
@@ -89,11 +89,5 @@ public class PhysicsSystem extends IntervalIteratingSystem {
         Rigidbody rb = rm.get(entity);
         rb.body.setTransform(t.getPosition().x, t.getPosition().y,t.getRotation() * MathUtils.degreesToRadians);
         */
-    }
-
-    public static int ContactsSize(){
-        //return CollisionSystem.contacts.size();
-        return ContactSystem.entryContacts.size() + ContactSystem.exitContacts.size() +
-                ContactSystem.sensorEntryContacts.size() + ContactSystem.sensorExitContacts.size();
     }
 }

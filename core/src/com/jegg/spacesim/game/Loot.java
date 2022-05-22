@@ -6,11 +6,14 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.jegg.spacesim.core.Game;
 import com.jegg.spacesim.core.ecs.*;
 
 public class Loot extends IteratedEntity implements ISensorContactListener {
     private float timer = 5f;
+    private final float chaseSpeed = 25.0f;
+    private Ship targetShip;
 
     public Loot(Color color){
         Transform t = Game.CreateComponent(Transform.class);
@@ -25,7 +28,11 @@ public class Loot extends IteratedEntity implements ISensorContactListener {
         add(poly);
         add(t);
 
-        Rigidbody rb = Game.CreateRigidbody(poly.poly.getTransformedVertices(), BodyDef.BodyType.DynamicBody, 1);
+        CircleShape circle = new CircleShape();
+        circle.setRadius(15.0f);
+        BodyDef bodyDef = new BodyDef();
+        bodyDef.type = BodyDef.BodyType.KinematicBody;
+        Rigidbody rb = Game.CreateRigidbody(bodyDef, circle, 0);
         rb.body.getFixtureList().get(0).setSensor(true);
         rb.body.setUserData(this);
         add(rb);
@@ -47,17 +54,29 @@ public class Loot extends IteratedEntity implements ISensorContactListener {
         if(timer <= 0){
             Game.DestroyEntity(this);
         }
+        if(targetShip != null){
+            Transform t = getTransform();
+            Transform shipT = targetShip.getTransform();
+            if(Vector2.dst(t.getPosition2().x, t.getPosition2().y, shipT.getPosition2().x, shipT.getPosition2().y) < 0.5f){
+                Game.DestroyEntity(this);
+            }
+            else {
+                getComponent(Rigidbody.class).body.setLinearVelocity(shipT.getPosition2().sub(t.getPosition2()).nor().scl(chaseSpeed));
+            }
+        }
     }
 
     @Override
     public void sensorContactEnter(Entity entity) {
         if(entity instanceof Ship){
-            Game.DestroyEntity(this);
+            targetShip = (Ship) entity;
         }
     }
 
     @Override
     public void sensorContactExit(Entity entity) {
-
+        if(entity == targetShip){
+            targetShip = null;
+        }
     }
 }

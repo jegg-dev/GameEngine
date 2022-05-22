@@ -1,12 +1,12 @@
 package com.jegg.spacesim.game;
 
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Polygon;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.jegg.spacesim.core.*;
 import com.jegg.spacesim.core.ecs.*;
 import com.jegg.spacesim.core.ecs.Transform;
@@ -23,6 +23,8 @@ public class AIShip extends IteratedEntity implements IDamageable {
 
     public float fireTimer = 1.0f;
     public float fireTime = 1.0f;
+
+    public ProgressBar healthBar;
 
     public AIShip(Ship targetShip){
         this.targetShip = targetShip;
@@ -50,6 +52,15 @@ public class AIShip extends IteratedEntity implements IDamageable {
         add(poly);
         add(Game.CreateComponent(IteratedFlag.class));
         Game.AddEntity(this);
+
+        healthBar = new ProgressBar(0, 100, 1, false, new Skin(Gdx.files.internal("skins/flat/skin.json")));
+        healthBar.setAnimateDuration(0.5f);
+        healthBar.setAnimateInterpolation(Interpolation.fastSlow);
+        healthBar.getStyle().background.setMinHeight(5);
+        healthBar.getStyle().knobBefore.setMinHeight(5);
+        healthBar.setHeight(5);
+        healthBar.setWidth(50);
+        Game.GetUIStage().addActor(healthBar);
     }
 
     @Override
@@ -59,6 +70,11 @@ public class AIShip extends IteratedEntity implements IDamageable {
     public void update(float deltaTime){
         Transform t = getComponent(Transform.class);
         Rigidbody rb = getComponent(Rigidbody.class);
+
+        Vector3 worldPos = t.getPosition().add(0, 1, 0);
+        Vector2 screenPos = GameCamera.GetMain().worldToScreen(worldPos);
+        healthBar.setPosition(screenPos.x - (healthBar.getWidth() / 2), screenPos.y);
+        healthBar.setValue(health);
 
         fireTime -= deltaTime;
 
@@ -80,6 +96,11 @@ public class AIShip extends IteratedEntity implements IDamageable {
         }
 
         Game.lines.add(new DebugLine(t.getPosition2(), t.getPosition2().add(rb.body.getLinearVelocity().scl(0.1f)), 0, Color.CYAN));
+    }
+
+    @Override
+    public void onDestroy(){
+        healthBar.remove();
     }
 
     @Override

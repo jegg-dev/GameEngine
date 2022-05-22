@@ -7,6 +7,7 @@ import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.*;
@@ -22,8 +23,6 @@ import com.jegg.spacesim.game.*;
 public class Game extends ApplicationAdapter {
 	private static Engine engine;
 	private static Stage uiStage;
-	private Label fpsCounter;
-	private Label contactsCounter;
 	private static GameCamera gameCamera;
 	private static ShapeRenderer shapeRenderer;
 	public static boolean debugging = false;
@@ -31,43 +30,7 @@ public class Game extends ApplicationAdapter {
 
 	@Override
 	public void create () {
-		Input input = new Input();
-		Input.Instance = input;
-
-		Skin skin = new Skin(Gdx.files.internal("skins/flat/skin.json"));
-		uiStage = new Stage(new ScreenViewport());
-		Table table = new Table();
-		table.setFillParent(true);
-		uiStage.addActor(table);
-
-		fpsCounter = new Label("FPS", skin);
-		Image background = new Image(new Texture(new Pixmap(0,0, Pixmap.Format.Alpha)));
-		fpsCounter.getStyle().background = background.getDrawable();
-		fpsCounter.getStyle().font.getData().setScale(0.5f, 0.5f);
-		table.top().add(fpsCounter).padLeft(5.0f).padTop(5.0f).width(25).height(15).expandX().left();
-
-		TextButton tb = new TextButton("Exit", skin);
-		tb.addListener(new ClickListener(){
-			@Override
-			public void clicked(InputEvent e, float x, float y){
-				Gdx.app.exit();
-			}
-		});
-		table.add(tb).width(25).height(25).right();
-
-		table.row();
-
-		contactsCounter = new Label("Contacts", skin);
-		contactsCounter.getStyle().background = background.getDrawable();
-		contactsCounter.getStyle().font.getData().setScale(0.5f, 0.5f);
-		table.add(contactsCounter).padLeft(5.0f).padBottom(5.0f).width(25).height(15).bottom().left();
-
-		table.setDebug(true);
-
-		InputMultiplexer im = new InputMultiplexer();
-		im.addProcessor(input);
-		im.addProcessor(uiStage);
-		Gdx.input.setInputProcessor(im);
+		Input.Instance = new Input();
 
 		Gdx.graphics.setVSync(Settings.UseVsync);
 
@@ -77,7 +40,7 @@ public class Game extends ApplicationAdapter {
 		shapeRenderer = new ShapeRenderer();
 		shapeRenderer.setProjectionMatrix(gameCamera.getCombined());
 		batch.setProjectionMatrix(gameCamera.getCombined());
-		RenderSystem renderSystem = new RenderSystem(batch, gameCamera.orthoCam);
+		SpriteRenderSystem spriteRenderSystem = new SpriteRenderSystem(batch, gameCamera.orthoCam);
 
 		Physics.world = new World(new Vector2(0,0),true);
 		ContactSystem contactSystem = new ContactSystem();
@@ -87,7 +50,7 @@ public class Game extends ApplicationAdapter {
 		engine = new PooledEngine();
 		engine.addSystem(new PhysicsSystem(Physics.world, contactSystem));
 		engine.addSystem(new IteratingEntitySystem());
-		engine.addSystem(renderSystem);
+		engine.addSystem(spriteRenderSystem);
 		engine.addSystem(new TilemapRenderSystem(shapeRenderer));
 		engine.addSystem(new ShapeRenderSystem(shapeRenderer));
 		engine.addSystem(new ParticleSystemRenderer(shapeRenderer));
@@ -95,16 +58,63 @@ public class Game extends ApplicationAdapter {
 		engine.getSystem(PhysicsDebugSystem.class).setProcessing(false);
 		engine.addSystem(new GarbageSystem(engine));
 
-		//new Station();
+		//---GAME SETUP---
+
+		Skin skin = new Skin(Gdx.files.internal("skins/flat/skin.json"));
+		Stage stage = new Stage(new ScreenViewport());
+		Table table = new Table();
+		table.setFillParent(true);
+		stage.addActor(table);
+
+		FPSCounter fpsCounter = new FPSCounter("FPS", skin);
+		Image background = new Image(new Texture(new Pixmap(1,1, Pixmap.Format.Alpha)));
+		fpsCounter.getStyle().background = background.getDrawable();
+		fpsCounter.getStyle().font.getData().setScale(1f, 1f);
+		table.top().add(fpsCounter).padLeft(5.0f).padTop(2.0f).width(25).height(15).expandX().left().top();
+
+		TextButton tb = new TextButton("Full", skin);
+		tb.addListener(new ClickListener(){
+			@Override
+			public void clicked(InputEvent e, float x, float y){
+				if(!Gdx.graphics.isFullscreen()) {
+					Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
+				}
+				else{
+					Gdx.graphics.setWindowedMode(800, 600);
+				}
+			}
+		});
+		table.add(tb).width(50).height(50).right();
+
+		table.row().expandY().colspan(2);
+
+		ProgressBar healthBar = new ProgressBar(0, 100, 1, false, skin);
+		healthBar.setAnimateDuration(0.5f);
+		healthBar.setAnimateInterpolation(Interpolation.fastSlow);
+		healthBar.getStyle().background.setMinHeight(25);
+		healthBar.getStyle().background.setMinWidth(300);
+		healthBar.getStyle().knobBefore.setMinWidth(300);
+		healthBar.getStyle().knobBefore.setMinHeight(25);
+		table.add(healthBar).width(500).height(25).padBottom(5.0f).center().bottom();
+
+		Label healthLabel = new Label("Health", skin);
+		Table overlayTable = new Table();
+		stage.addActor(overlayTable);
+		overlayTable.setFillParent(true);
+		overlayTable.bottom().add(healthLabel).padBottom(5.0f).center();
+
+		//table.setDebug(true);
+		Game.SetUIStage(stage);
+
 		//SpaceGenerator gen = new SpaceGenerator();
 		//gen.generate();
 
-		//new TerrainController();
-		//new PerlinTest();
+		//new TerrainMap(100, 16, 1, 4);
+		new TerrainController();
+
 		Ship ship = new Ship();
-		/*for(int i = 0; i < 1; i++){
-			new AIShip(ship);
-		}*/
+		ship.healthBar = healthBar;
+		ship.healthLabel = healthLabel;
 	}
 
 	@Override
@@ -161,13 +171,10 @@ public class Game extends ApplicationAdapter {
 
 		shapeRenderer.end();
 
-		fpsCounter.setText(Gdx.graphics.getFramesPerSecond());
-		contactsCounter.setText(PhysicsSystem.ContactsSize());
-
-		uiStage.getViewport().setScreenWidth(Gdx.graphics.getWidth());
-		uiStage.getViewport().setScreenHeight(Gdx.graphics.getHeight());
-		uiStage.act();
-		uiStage.draw();
+		if(uiStage != null) {
+			uiStage.act(Gdx.graphics.getDeltaTime());
+			uiStage.draw();
+		}
 
 		//Gdx.gl.glEnable(GL20.GL_BLEND);
 		//Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
@@ -177,8 +184,19 @@ public class Game extends ApplicationAdapter {
 
 	@Override
 	public void resize(int width, int height){
-		gameCamera.orthoCam.viewportWidth = width / RenderSystem.PIXELS_PER_METER;
-		gameCamera.orthoCam.viewportHeight = height / RenderSystem.PIXELS_PER_METER;
+		float aspectRatio = (float)width / (float)height;
+		float scaledWidth = 1920;
+		float scaledHeight = 1920 * (1 / aspectRatio);
+
+		gameCamera.orthoCam.viewportWidth = scaledWidth / SpriteRenderSystem.PIXELS_PER_METER;
+		gameCamera.orthoCam.viewportHeight = scaledHeight / SpriteRenderSystem.PIXELS_PER_METER;
+
+		uiStage.getViewport().setScreenWidth(width);
+		uiStage.getViewport().setScreenHeight(height);
+
+		uiStage.getViewport().setWorldWidth(scaledWidth);
+		uiStage.getViewport().setWorldHeight(scaledHeight);
+		uiStage.getViewport().apply(true);
 	}
 
 	@Override
@@ -248,10 +266,14 @@ public class Game extends ApplicationAdapter {
 		entity.remove(component);
 	}
 
+	public static Stage GetUIStage(){
+		return uiStage;
+	}
+
 	public static void SetUIStage(Stage stage){
 		uiStage = stage;
 		InputMultiplexer im = new InputMultiplexer();
-		im.addProcessor(stage);
+		im.addProcessor(uiStage);
 		im.addProcessor(Input.Instance);
 		Gdx.input.setInputProcessor(im);
 	}

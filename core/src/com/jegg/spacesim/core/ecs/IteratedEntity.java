@@ -8,9 +8,9 @@ public abstract class IteratedEntity extends Entity {
 
     public abstract void start(float deltaTime);
     public abstract void update(float deltaTime);
-    public void fixedUpdate(float deltaTime){
+    public void fixedUpdate(float deltaTime){}
 
-    }
+    public void onDestroy(){}
 
     public Transform getTransform(){
         return ComponentMappers.transform.get(this);

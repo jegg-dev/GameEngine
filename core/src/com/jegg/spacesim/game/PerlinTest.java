@@ -7,7 +7,6 @@ import com.jegg.spacesim.core.GameCamera;
 import com.jegg.spacesim.core.PerlinNoise;
 import com.jegg.spacesim.core.ecs.IteratedEntity;
 import com.jegg.spacesim.core.ecs.IteratedFlag;
-import com.jegg.spacesim.core.ecs.RenderSystem;
 
 public class PerlinTest extends IteratedEntity {
     public float amplitude = 10.1f;

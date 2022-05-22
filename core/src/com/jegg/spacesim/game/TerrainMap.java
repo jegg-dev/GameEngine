@@ -1,11 +1,9 @@
 package com.jegg.spacesim.game;
 
 import com.badlogic.ashley.core.Entity;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
-import com.jegg.spacesim.core.GameCamera;
 import com.jegg.spacesim.core.Input;
 import com.jegg.spacesim.core.PerlinNoise;
 import com.jegg.spacesim.core.Physics;
@@ -39,25 +37,6 @@ public class TerrainMap extends RenderedTilemap {
 
     @Override
     public void update(Vector2 chunkPos) {
-        if(ShowChunkOutlines) {
-            ShapeRenderer sr = new ShapeRenderer();
-            sr.setProjectionMatrix(GameCamera.GetMain().getCombined());
-            sr.begin(ShapeRenderer.ShapeType.Line);
-            sr.setColor(Color.RED);
-            for (int x = (int) chunkPos.x - (viewDist * getChunkWidth()); x < chunkPos.x + ((viewDist + 1) * getChunkWidth()); x += getChunkWidth()) {
-                for (int y = (int) chunkPos.y - (viewDist * getChunkWidth()); y < chunkPos.y + ((viewDist + 1) * getChunkWidth()); y += getChunkWidth()) {
-                    Vector2 newChunkPos = TileToChunkPosition(new Vector2(x, y));
-                    newChunkPos.scl(getTileWidth());
-                    sr.polygon(new float[]{
-                            newChunkPos.x, newChunkPos.y,
-                            newChunkPos.x + (getChunkWidth() * getTileWidth()), newChunkPos.y,
-                            newChunkPos.x + (getChunkWidth() * getTileWidth()), newChunkPos.y + (getChunkWidth() * getTileWidth()),
-                            newChunkPos.x, newChunkPos.y + (getChunkWidth() * getTileWidth())
-                    });
-                }
-            }
-            sr.end();
-        }
         if(Input.getKeyUp(Input.K)){
             zLevel += 0.25f;
             for(int i = 0; i < getMapWidthInChunks() * getMapWidthInChunks(); i++){
@@ -70,6 +49,9 @@ public class TerrainMap extends RenderedTilemap {
             activeChunkNums.clear();
             lastChunkNum = Integer.MAX_VALUE;
         }
+        else if(Input.getKeyUp(Input.G)){
+            ShowChunkOutlines = !ShowChunkOutlines;
+        }
         if(getChunkNum((int)chunkPos.x, (int)chunkPos.y) == lastChunkNum){
             return;
         }
@@ -80,7 +62,10 @@ public class TerrainMap extends RenderedTilemap {
         ArrayList<Integer> tempChunks = new ArrayList<>();
         for (int x = (int)chunkPos.x - (viewDist * getChunkWidth()); x < chunkPos.x + ((viewDist + 1) * getChunkWidth()); x += getChunkWidth()) {
             for (int y = (int)chunkPos.y - (viewDist * getChunkWidth()); y < chunkPos.y + ((viewDist + 1) * getChunkWidth()); y += getChunkWidth()) {
-                loadChunk(x, y, tempChunks);
+                if(x / getChunkWidth() > -getMapWidthInChunks() / 2 && x / getChunkWidth() < getMapWidthInChunks() / 2
+                        && y / getChunkWidth() > -getMapWidthInChunks() / 2 && y / getChunkWidth() < getMapWidthInChunks() / 2) {
+                    loadChunk(x, y, tempChunks);
+                }
             }
         }
         for(int num : activeChunkNums){
@@ -105,7 +90,7 @@ public class TerrainMap extends RenderedTilemap {
                 for (int y2 = 0; y2 < getChunkWidth(); y2++) {
                     if (chunk.getTile(x2, y2) == 0) {
                         float z = PerlinNoise.At((float) (x + x2) / amplitude, (float) (y + y2) / amplitude, zLevel);
-                        float z2 = PerlinNoise.At((float) (x + x2) / enemyAmplitude, (float) (y + y2) / enemyAmplitude, zLevel + 1000);
+                        //float z2 = PerlinNoise.At((float) (x + x2) / enemyAmplitude, (float) (y + y2) / enemyAmplitude, zLevel + 1000);
                         int tile;
                         /*if((z >= -1 || z <= 0.2f) && z2 > 0.85f){
                             tile = 7;
@@ -122,6 +107,8 @@ public class TerrainMap extends RenderedTilemap {
                             if(TileDatabase.Get(tile).useCollider) {
                                 collider.setTile(x2 + x, y2 + y);
                             }
+                            //sr.setColor(TileDatabase.Get(tile).color);
+                            //sr.box(x * getTileWidth(), y * getTileWidth(), 0, getTileWidth(), getTileWidth(), 0);
                         }
                     }
                     TileDatabase.Get(chunk.getTile(x2, y2)).onLoad(this, TileToWorldCenterPosition(x + x2, y + y2));

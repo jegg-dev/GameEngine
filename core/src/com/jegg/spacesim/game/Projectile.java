@@ -20,7 +20,7 @@ public class Projectile extends IteratedEntity implements ISensorContactListener
         Transform t = Game.CreateComponent(Transform.class);
 
         CircleRenderer circle = Game.CreateComponent(CircleRenderer.class);
-        circle.radius = 0.25f;
+        circle.radius = 0.5f;
         circle.color = Color.RED;
         add(circle);
         add(t);
@@ -32,6 +32,7 @@ public class Projectile extends IteratedEntity implements ISensorContactListener
         Rigidbody rb = Game.CreateRigidbody(def, shape, 1);
         rb.body.setUserData(this);
         rb.body.getFixtureList().get(0).setSensor(true);
+        rb.body.setBullet(true);
         add(rb);
 
         add(Game.CreateComponent(IteratedFlag.class));

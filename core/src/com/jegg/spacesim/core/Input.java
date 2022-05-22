@@ -2,11 +2,21 @@ package com.jegg.spacesim.core;
 
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.utils.DragListener;
 import com.badlogic.gdx.utils.Array;
 
 public class Input implements InputProcessor {
 
     protected static Input Instance;
+
+    public final DragListener dragListener = new DragListener() {
+        @Override
+        public void touchDragged (InputEvent event, float x, float y, int pointer){
+            super.touchDragged(event, x, y, pointer);
+            Input.this.touchDragged((int)x, (int)y, pointer);
+        }
+    };
 
     public class InputState{
         public boolean pressed, down, released;

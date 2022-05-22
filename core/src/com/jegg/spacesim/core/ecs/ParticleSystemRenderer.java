@@ -40,7 +40,7 @@ public class ParticleSystemRenderer extends SortedIteratingSystem {
         for(Entity entity : renderQueue){
             ParticleSystem ps = particlesM.get(entity);
 
-            if(ps.playing){
+            if(ps.playing || ps.decaying){
                 if(!Game.debugging)
                     ps.update(deltaTime);
 

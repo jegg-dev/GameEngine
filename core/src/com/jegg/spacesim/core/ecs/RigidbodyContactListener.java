@@ -21,16 +21,20 @@ public class RigidbodyContactListener implements ContactListener {
         Fixture fb = contact.getFixtureB();
 
         if(fa.isSensor() && !fb.isSensor() && fa.getBody().getUserData() instanceof ISensorContactListener){
-            contactSystem.sensorEntryContacts.put((Entity)fa.getBody().getUserData(), (Entity)fb.getBody().getUserData());
+            contactSystem.sensorContactEnter((Entity)fa.getBody().getUserData(), (Entity)fb.getBody().getUserData());
+            //contactSystem.sensorEntryContacts.put((Entity)fa.getBody().getUserData(), (Entity)fb.getBody().getUserData());
         }
         else if(fb.isSensor() && !fa.isSensor() && fb.getBody().getUserData() instanceof ISensorContactListener){
-            contactSystem.sensorEntryContacts.put((Entity)fb.getBody().getUserData(), (Entity)fa.getBody().getUserData());
+            contactSystem.sensorContactEnter((Entity)fb.getBody().getUserData(), (Entity)fa.getBody().getUserData());
+            //contactSystem.sensorEntryContacts.put((Entity)fb.getBody().getUserData(), (Entity)fa.getBody().getUserData());
         }
         else if(!fa.isSensor() && !fb.isSensor() && fa.getBody().getUserData() instanceof IContactListener){
-            contactSystem.entryContacts.put((Entity)fa.getBody().getUserData(), (Entity)fb.getBody().getUserData());
+            contactSystem.contactEnter((Entity)fa.getBody().getUserData(), (Entity)fb.getBody().getUserData());
+            //contactSystem.entryContacts.put((Entity)fa.getBody().getUserData(), (Entity)fb.getBody().getUserData());
         }
         else if(!fa.isSensor() && !fb.isSensor() && fb.getBody().getUserData() instanceof IContactListener){
-            contactSystem.entryContacts.put((Entity)fb.getBody().getUserData(), (Entity)fa.getBody().getUserData());
+            contactSystem.contactEnter((Entity)fb.getBody().getUserData(), (Entity)fa.getBody().getUserData());
+            //contactSystem.entryContacts.put((Entity)fb.getBody().getUserData(), (Entity)fa.getBody().getUserData());
         }
     }
 
@@ -40,16 +44,20 @@ public class RigidbodyContactListener implements ContactListener {
         Fixture fb = contact.getFixtureB();
 
         if(fa.isSensor() && !fb.isSensor() && fa.getBody().getUserData() instanceof ISensorContactListener){
-            contactSystem.sensorExitContacts.put((Entity)fa.getBody().getUserData(), (Entity)fb.getBody().getUserData());
+            contactSystem.sensorContactExit((Entity)fa.getBody().getUserData(), (Entity)fb.getBody().getUserData());
+            //contactSystem.sensorExitContacts.put((Entity)fa.getBody().getUserData(), (Entity)fb.getBody().getUserData());
         }
         else if(fb.isSensor() && !fa.isSensor() && fb.getBody().getUserData() instanceof ISensorContactListener){
-            contactSystem.sensorExitContacts.put((Entity)fb.getBody().getUserData(), (Entity)fa.getBody().getUserData());
+            contactSystem.sensorContactExit((Entity)fb.getBody().getUserData(), (Entity)fa.getBody().getUserData());
+            //contactSystem.sensorExitContacts.put((Entity)fb.getBody().getUserData(), (Entity)fa.getBody().getUserData());
         }
         else if(!fa.isSensor() && !fb.isSensor() && fa.getBody().getUserData() instanceof IContactListener){
-            contactSystem.exitContacts.put((Entity)fa.getBody().getUserData(), (Entity)fb.getBody().getUserData());
+            contactSystem.contactExit((Entity)fa.getBody().getUserData(), (Entity)fb.getBody().getUserData());
+            //contactSystem.exitContacts.put((Entity)fa.getBody().getUserData(), (Entity)fb.getBody().getUserData());
         }
         else if(!fa.isSensor() && !fb.isSensor() && fb.getBody().getUserData() instanceof IContactListener){
-            contactSystem.exitContacts.put((Entity)fb.getBody().getUserData(), (Entity)fa.getBody().getUserData());
+            contactSystem.contactExit((Entity)fb.getBody().getUserData(), (Entity)fa.getBody().getUserData());
+            //contactSystem.exitContacts.put((Entity)fb.getBody().getUserData(), (Entity)fa.getBody().getUserData());
         }
     }
 

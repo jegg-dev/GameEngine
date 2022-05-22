@@ -9,7 +9,7 @@ import com.badlogic.gdx.math.Vector3;
 public class GameCamera {
     protected static GameCamera Main;
 
-    public static final float SCALE_FACTOR = Gdx.graphics.getPpiX() / 600;
+    public static final float SCALE_FACTOR = 10.0f;
 
     protected OrthographicCamera orthoCam;
 
@@ -30,11 +30,11 @@ public class GameCamera {
     }
 
     public float getZoom(){
-        return orthoCam.zoom / SCALE_FACTOR;
+        return 1 / (orthoCam.zoom / SCALE_FACTOR);
     }
 
     public void setZoom(float zoom){
-        orthoCam.zoom = zoom * SCALE_FACTOR;
+        orthoCam.zoom = (1 / zoom) * SCALE_FACTOR;
     }
 
     public float getWidth(){
@@ -59,6 +59,11 @@ public class GameCamera {
 
     public Vector3 screenToWorld(Vector3 screenPos){
         return orthoCam.unproject(screenPos);
+    }
+
+    public Vector2 worldToScreen(Vector3 worldPos){
+        Vector3 screenPos = orthoCam.project(worldPos).scl(1f / (float)Gdx.graphics.getWidth(), 1f / (float)Gdx.graphics.getHeight(), 1).scl(800, 600, 1);
+        return new Vector2(screenPos.x, screenPos.y);
     }
 
     public static GameCamera GetMain(){

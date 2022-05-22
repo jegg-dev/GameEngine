@@ -8,13 +8,11 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
-import com.jegg.spacesim.core.GameCamera;
 
 import java.util.Comparator;
 
-public class RenderSystem extends SortedIteratingSystem {
+public class SpriteRenderSystem extends SortedIteratingSystem {
 
     public static final float PIXELS_PER_METER = 32.0f;
     public static final float METERS_PER_PIXEL = 1.0f / PIXELS_PER_METER;
@@ -31,13 +29,13 @@ public class RenderSystem extends SortedIteratingSystem {
     private OrthographicCamera camera;
 
     private ComponentMapper<Transform> transformM;
-    private ComponentMapper<TextureRenderer> textureM;
+    private ComponentMapper<SpriteRenderer> spriteM;
 
-    public RenderSystem(SpriteBatch batch, OrthographicCamera camera){
-        super(Family.all(Transform.class, TextureRenderer.class).exclude(InactiveFlag.class).get(), new ZComparator());
+    public SpriteRenderSystem(SpriteBatch batch, OrthographicCamera camera){
+        super(Family.all(Transform.class, SpriteRenderer.class).exclude(InactiveFlag.class).get(), new ZComparator());
 
         transformM = ComponentMapper.getFor(Transform.class);
-        textureM = ComponentMapper.getFor(TextureRenderer.class);
+        spriteM = ComponentMapper.getFor(SpriteRenderer.class);
 
         renderQueue = new Array<>();
         this.batch = batch;
@@ -57,22 +55,10 @@ public class RenderSystem extends SortedIteratingSystem {
         batch.begin();
 
         for(Entity entity : renderQueue){
-            TextureRenderer tex = textureM.get(entity);
-            Transform t = transformM.get(entity);
-
-            if(tex.region == null){
-                continue;
-            }
-
-            float width = tex.region.getRegionWidth();
-            float height = tex.region.getRegionHeight();
-            float originX = width / 2f;
-            float originY = height / 2f;
-
-            batch.draw(tex.region, t.getPosition().x - originX, t.getPosition().y - originY,
-                    originX, originY, width, height,
-                    t.scale.x * PIXELS_PER_METER, t.scale.y * PIXELS_PER_METER, t.getRotation());
+            SpriteRenderer sprite = spriteM.get(entity);
+            sprite.render(transformM.get(entity), batch);
         }
+
         batch.end();
         renderQueue.clear();
     }
