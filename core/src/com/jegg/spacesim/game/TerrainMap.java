@@ -1,6 +1,7 @@
 package com.jegg.spacesim.game;
 
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -107,6 +108,7 @@ public class TerrainMap extends RenderedTilemap {
                             if(TileDatabase.Get(tile).useCollider) {
                                 collider.setTile(x2 + x, y2 + y);
                             }
+
                             //sr.setColor(TileDatabase.Get(tile).color);
                             //sr.box(x * getTileWidth(), y * getTileWidth(), 0, getTileWidth(), getTileWidth(), 0);
                         }

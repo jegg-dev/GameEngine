@@ -51,7 +51,7 @@ public class Game extends ApplicationAdapter {
 		engine.addSystem(new PhysicsSystem(Physics.world, contactSystem));
 		engine.addSystem(new IteratingEntitySystem());
 		engine.addSystem(spriteRenderSystem);
-		engine.addSystem(new TilemapRenderSystem(shapeRenderer));
+		engine.addSystem(new TilemapRenderSystem(shapeRenderer, batch));
 		engine.addSystem(new ShapeRenderSystem(shapeRenderer));
 		engine.addSystem(new ParticleSystemRenderer(shapeRenderer));
 		engine.addSystem(new PhysicsDebugSystem(Physics.world, gameCamera));
