@@ -13,6 +13,7 @@ public class SpriteRenderer implements Component {
     public void setTexture(Texture tx, int width, int height){
         sprite.set(new Sprite(tx, width, height));
         sprite.setOrigin(width / 2f, height / 2f);
+        sprite.setAlpha(0.0f);
     }
 
     public void setWrap(Texture.TextureWrap wrapU, Texture.TextureWrap wrapV){

@@ -6,7 +6,7 @@ import com.badlogic.ashley.core.Entity;
 import java.util.Comparator;
 
 public class ZComparator implements Comparator<Entity> {
-    private ComponentMapper<Transform> tm;
+    private final ComponentMapper<Transform> tm;
 
     public ZComparator(){
         tm = ComponentMapper.getFor(Transform.class);

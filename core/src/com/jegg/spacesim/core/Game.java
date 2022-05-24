@@ -25,6 +25,7 @@ public class Game extends ApplicationAdapter {
 	private static Stage uiStage;
 	private static GameCamera gameCamera;
 	private static ShapeRenderer shapeRenderer;
+	private static SpriteBatch batch;
 	public static boolean debugging = false;
 	public static Array<DebugLine> lines = new Array<>();
 
@@ -34,13 +35,14 @@ public class Game extends ApplicationAdapter {
 
 		Gdx.graphics.setVSync(Settings.UseVsync);
 
+		AssetDatabase.Load();
+
 		gameCamera = new GameCamera(new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
 		GameCamera.Main = gameCamera;
-		SpriteBatch batch = new SpriteBatch();
+		batch = new SpriteBatch();
 		shapeRenderer = new ShapeRenderer();
-		shapeRenderer.setProjectionMatrix(gameCamera.getCombined());
-		batch.setProjectionMatrix(gameCamera.getCombined());
-		SpriteRenderSystem spriteRenderSystem = new SpriteRenderSystem(batch, gameCamera.orthoCam);
+		//shapeRenderer.setProjectionMatrix(gameCamera.getCombined());
+		//batch.setProjectionMatrix(gameCamera.getCombined());
 
 		Physics.world = new World(new Vector2(0,0),true);
 		ContactSystem contactSystem = new ContactSystem();
@@ -50,10 +52,10 @@ public class Game extends ApplicationAdapter {
 		engine = new PooledEngine();
 		engine.addSystem(new PhysicsSystem(Physics.world, contactSystem));
 		engine.addSystem(new IteratingEntitySystem());
-		engine.addSystem(spriteRenderSystem);
-		engine.addSystem(new TilemapRenderSystem(shapeRenderer, batch));
+		engine.addSystem(new SpriteRenderSystem(batch, gameCamera.orthoCam));
+		engine.addSystem(new TilemapRenderSystem(batch));
 		engine.addSystem(new ShapeRenderSystem(shapeRenderer));
-		engine.addSystem(new ParticleSystemRenderer(shapeRenderer));
+		engine.addSystem(new ParticleSystemRenderer(batch));
 		engine.addSystem(new PhysicsDebugSystem(Physics.world, gameCamera));
 		engine.getSystem(PhysicsDebugSystem.class).setProcessing(false);
 		engine.addSystem(new GarbageSystem(engine));
@@ -106,15 +108,13 @@ public class Game extends ApplicationAdapter {
 		//table.setDebug(true);
 		Game.SetUIStage(stage);
 
-		//SpaceGenerator gen = new SpaceGenerator();
-		//gen.generate();
-
-		//new TerrainMap(100, 16, 1, 4);
 		new TerrainController();
 
 		Ship ship = new Ship();
 		ship.healthBar = healthBar;
 		ship.healthLabel = healthLabel;
+
+		new AIShip(ship);
 	}
 
 	@Override
@@ -156,6 +156,10 @@ public class Game extends ApplicationAdapter {
 
 		shapeRenderer.setProjectionMatrix(gameCamera.getCombined());
 		shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+		batch.setProjectionMatrix(gameCamera.getCombined());
+		batch.enableBlending();
+		batch.begin();
+
 		engine.update(Gdx.graphics.getDeltaTime());
 
 		Array<DebugLine> toRemove = new Array<>();
@@ -170,6 +174,7 @@ public class Game extends ApplicationAdapter {
 		lines.removeAll(toRemove, true);
 
 		shapeRenderer.end();
+		batch.end();
 
 		if(uiStage != null) {
 			uiStage.act(Gdx.graphics.getDeltaTime());
@@ -246,6 +251,10 @@ public class Game extends ApplicationAdapter {
 		PolygonShape shape = new PolygonShape();
 		shape.set(verts);
 		body.createFixture(shape, density);
+		Filter filter = new Filter();
+		filter.categoryBits = Physics.CATEGORY_NORMAL;
+		filter.maskBits = Physics.MASK_NORMAL;
+		body.getFixtureList().get(0).setFilterData(filter);
 		rb.body = body;
 		return rb;
 	}
@@ -254,6 +263,10 @@ public class Game extends ApplicationAdapter {
 		Rigidbody rb = CreateComponent(Rigidbody.class);
 		Body body = Physics.world.createBody(def);
 		body.createFixture(shape, density);
+		Filter filter = new Filter();
+		filter.categoryBits = Physics.CATEGORY_NORMAL;
+		filter.maskBits = Physics.MASK_NORMAL;
+		body.getFixtureList().get(0).setFilterData(filter);
 		rb.body = body;
 		return rb;
 	}

@@ -6,6 +6,7 @@ import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.SortedIteratingSystem;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
@@ -16,19 +17,19 @@ import java.util.Comparator;
 
 public class ParticleSystemRenderer extends SortedIteratingSystem {
 
-    private ShapeRenderer renderer;
+    private SpriteBatch batch;
     private Array<Entity> renderQueue;
     private Comparator<Entity> comparator;
 
     private ComponentMapper<ParticleSystem> particlesM;
 
-    public ParticleSystemRenderer(ShapeRenderer renderer){
+    public ParticleSystemRenderer(SpriteBatch batch){
         super(Family.all(ParticleSystem.class).exclude(InactiveFlag.class).get(), new ZComparator());
 
         particlesM = ComponentMapper.getFor(ParticleSystem.class);
 
         renderQueue = new Array<>();
-        this.renderer = renderer;
+        this.batch = batch;
     }
 
     @Override
@@ -44,7 +45,7 @@ public class ParticleSystemRenderer extends SortedIteratingSystem {
                 if(!Game.debugging)
                     ps.update(deltaTime);
 
-                ps.render(renderer);
+                ps.render(batch);
             }
         }
         //renderer.end();

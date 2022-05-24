@@ -62,7 +62,7 @@ public class GameCamera {
     }
 
     public Vector2 worldToScreen(Vector3 worldPos){
-        Vector3 screenPos = orthoCam.project(worldPos).scl(1f / (float)Gdx.graphics.getWidth(), 1f / (float)Gdx.graphics.getHeight(), 1).scl(800, 600, 1);
+        Vector3 screenPos = orthoCam.project(worldPos).scl(1f / (float)Gdx.graphics.getWidth(), 1f / (float)Gdx.graphics.getHeight(), 1).scl(1920, 1080, 1);
         return new Vector2(screenPos.x, screenPos.y);
     }
 

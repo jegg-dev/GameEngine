@@ -16,7 +16,7 @@ import java.util.HashMap;
 
 public class AIShip extends IteratedEntity implements IDamageable {
     public int health = 100;
-    public float thrustForce = 5;
+    public float thrustForce = 10;
     public float turnTorque = 6;
 
     public Ship targetShip;
@@ -30,7 +30,6 @@ public class AIShip extends IteratedEntity implements IDamageable {
         this.targetShip = targetShip;
 
         Transform t = Game.CreateComponent(Transform.class);
-        PolygonRenderer poly = Game.CreateComponent(PolygonRenderer.class);
         float[] verts = new float[]{
                 -0.2f, -1,
                 0.2f, -1,
@@ -40,16 +39,20 @@ public class AIShip extends IteratedEntity implements IDamageable {
                 -0.5f, 0.5f,
                 -0.5f, -0.5f
         };
-        poly.poly = new Polygon(verts);
-        poly.color = Color.ORANGE;
+
+        SpriteRenderer sr = Game.CreateComponent(SpriteRenderer.class);
+        sr.setTexture(AssetDatabase.GetTexture("ship"), 256, 256);
+        sr.setColor(Color.GRAY);
+        t.scale.set(0.25f,0.25f);
+        add(sr);
 
         Rigidbody rb = Game.CreateRigidbody(verts, BodyDef.BodyType.DynamicBody, 1);
         rb.body.setAngularDamping(5);
+        rb.body.setLinearDamping(2f);
         rb.body.setUserData(this);
         rb.body.setBullet(true);
         add(t);
         add(rb);
-        add(poly);
         add(Game.CreateComponent(IteratedFlag.class));
         Game.AddEntity(this);
 

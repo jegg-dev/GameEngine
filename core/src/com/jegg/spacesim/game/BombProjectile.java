@@ -5,14 +5,12 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.jegg.spacesim.core.Game;
-import com.jegg.spacesim.core.ecs.CircleRenderer;
-import com.jegg.spacesim.core.ecs.DestroyedFlag;
+import com.jegg.spacesim.core.ecs.*;
 
 public class BombProjectile extends Projectile{
     public BombProjectile(Entity owner) {
         super(owner);
-        getComponent(CircleRenderer.class).radius = 0.5f;
-        getComponent(CircleRenderer.class).color = Color.PINK;
+        getComponent(Transform.class).scale.set(0.2f, 0.2f);
     }
 
     @Override

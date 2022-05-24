@@ -3,13 +3,17 @@ package com.jegg.spacesim.core.ecs;
 import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.Filter;
 import com.jegg.spacesim.core.Game;
+import com.jegg.spacesim.core.Physics;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -28,11 +32,12 @@ public class ParticleSystem implements Component {
 
     public Vector2 emissionLocalOffset = new Vector2(0,0);
 
-    public boolean useEllipseRender;
+    public Sprite particleSprite;
     public float[] particleVerts = PolygonRenderer.boxVerts;
     public Vector2 particleScale = new Vector2(1,1);
     public Color particleColor = Color.WHITE;
     public Vector2 particleLocalVelocity = new Vector2(0,0);
+    public boolean decreaseScaleWithLifetime;
     public float particleLifetime = 5;
 
     public boolean useCollisions;
@@ -82,7 +87,7 @@ public class ParticleSystem implements Component {
             e.setValue(e.getValue().add(0,0,deltaTime));
         }
 
-        HashMap<Entity, Vector3> tempMap = (HashMap<Entity, Vector3>)particles.clone();
+        HashMap<Entity, Vector3> tempMap = new HashMap<>(particles);
         for (Map.Entry<Entity, Vector3> e : tempMap.entrySet()) {
             if (e.getValue().z >= particleLifetime) {
                 particles.remove(e.getKey());
@@ -91,14 +96,19 @@ public class ParticleSystem implements Component {
         }
 
         if(!useCollisions) {
-            for (Map.Entry<Entity, Vector3> e : tempMap.entrySet()) {
+            for (Map.Entry<Entity, Vector3> e : particles.entrySet()) {
                 Transform t = ComponentMappers.transform.get(e.getKey());
                 t.setPosition(t.getPosition().add(e.getValue().x * deltaTime, e.getValue().y * deltaTime, 0));
+                if(decreaseScaleWithLifetime)
+                    t.scale.set(particleScale.x * ((1 - (e.getValue().z / particleLifetime))), particleScale.y * ((1 - (e.getValue().z / particleLifetime))));
             }
-            /*for (Entity p : particles.keySet()) {
-                Transform t = ComponentMappers.transform.get(p);
-                t.setPosition(t.getPosition().add(particleVelocity.x * deltaTime, particleVelocity.y * deltaTime, 0));
-            }*/
+        }
+        else if(decreaseScaleWithLifetime){
+            for (Map.Entry<Entity, Vector3> e : particles.entrySet()) {
+                Transform t = ComponentMappers.transform.get(e.getKey());
+                t.scale.set(particleScale.x * ((1 - (e.getValue().z / particleLifetime))), particleScale.y * ((1 - (e.getValue().z / particleLifetime))));
+                //ComponentMappers.rigidbody.get(e.getKey()).body.getFixtureList().get(0).getShape().setRadius(t.scale.x);
+            }
         }
 
         if(!decaying && spawnTimer <= 0 && particles.size() < maxParticles){
@@ -115,23 +125,20 @@ public class ParticleSystem implements Component {
         }
     }
 
-    protected void render(ShapeRenderer sr){
-        sr.setColor(particleColor);
-        if(useEllipseRender){
-            for(Entity p : particles.keySet()){
-                Transform t = ComponentMappers.transform.get(p);
-                sr.ellipse(t.getPosition().x, t.getPosition().y, particleScale.x, particleScale.y);
-            }
+    protected void render(SpriteBatch batch){
+        particleSprite.setColor(particleColor);
+        particleSprite.setOrigin(particleSprite.getWidth() / 2, particleSprite.getHeight() / 2);
+        if(!decreaseScaleWithLifetime){
+            particleSprite.setScale(particleScale.x, particleScale.y);
         }
-        else {
-            Polygon poly = new Polygon(particleVerts);
-            poly.setScale(particleScale.x, particleScale.y);
-            for (Entity p : particles.keySet()) {
-                Transform t = ComponentMappers.transform.get(p);
-                poly.setPosition(t.getPosition().x, t.getPosition().y);
-                poly.setRotation(t.getRotation());
-                sr.polygon(poly.getTransformedVertices());
+        for (Entity p : particles.keySet()) {
+            Transform t = ComponentMappers.transform.get(p);
+            if(decreaseScaleWithLifetime) {
+                particleSprite.setScale(t.scale.x, t.scale.y);
             }
+            particleSprite.setOriginBasedPosition(t.getPosition2().x, t.getPosition2().y);
+            particleSprite.setRotation(t.getRotation());
+            particleSprite.draw(batch);
         }
     }
 
@@ -170,13 +177,18 @@ public class ParticleSystem implements Component {
 
         if(useCollisions){
             Polygon poly = new Polygon(particleVerts);
-            poly.setScale(particleScale.x, particleScale.y);
+            //poly.setScale(particleScale.x, particleScale.y);
             Rigidbody rb = Game.CreateRigidbody(poly.getTransformedVertices(), BodyDef.BodyType.DynamicBody, 0.01f);
             rb.body.setTransform(pos.x, pos.y, transform.getRotation() * MathUtils.degreesToRadians);
+            Filter filter = new Filter();
+            filter.categoryBits = Physics.CATEGORY_PARTICLE;
+            filter.maskBits = Physics.MASK_PARTICLE;
+            rb.body.getFixtureList().get(0).setFilterData(filter);
             particle.add(rb);
         }
 
         ComponentMappers.transform.get(particle).setPosition(pos);
+        ComponentMappers.transform.get(particle).scale.set(particleScale);
         return particle;
     }
 }

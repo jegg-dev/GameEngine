@@ -3,10 +3,10 @@ package com.jegg.spacesim.game;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
+import com.jegg.spacesim.core.AssetDatabase;
 import com.jegg.spacesim.core.Game;
 import com.jegg.spacesim.core.ecs.*;
 
@@ -17,16 +17,13 @@ public class Loot extends IteratedEntity implements ISensorContactListener {
 
     public Loot(Color color){
         Transform t = Game.CreateComponent(Transform.class);
-        PolygonRenderer poly = Game.CreateComponent(PolygonRenderer.class);
-        float[] verts = new float[]{
-                -0.25f,-0.25f,
-                0.25f,-0.25f,
-                0,0.25f
-        };
-        poly.poly = new Polygon(verts);
-        poly.color = color;
-        add(poly);
         add(t);
+
+        SpriteRenderer sr = Game.CreateComponent(SpriteRenderer.class);
+        sr.setTexture(AssetDatabase.GetTexture("triangle-256"), 256, 256);
+        sr.setColor(color);
+        t.scale.set(0.08f, 0.08f);
+        add(sr);
 
         CircleShape circle = new CircleShape();
         circle.setRadius(15.0f);

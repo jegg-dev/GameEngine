@@ -3,6 +3,8 @@ package com.jegg.spacesim.game;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.jegg.spacesim.core.Input;
@@ -18,6 +20,8 @@ public class TerrainMap extends RenderedTilemap {
     public CollisionTilemap collider;
     public PrimitiveTilemap healthMap;
     public Tilemap<Entity> entityMap;
+
+    public TiledMap renderMap;
 
     public int lastChunkNum;
     public ArrayList<Integer> loadedChunkNums = new ArrayList<>();

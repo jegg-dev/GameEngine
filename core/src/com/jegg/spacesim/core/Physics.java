@@ -8,6 +8,11 @@ import com.badlogic.gdx.utils.Array;
 public class Physics {
     protected static World world;
 
+    public static final short CATEGORY_NORMAL = 0x0001;
+    public static final short CATEGORY_PARTICLE = 0x0002;
+    public static final short MASK_NORMAL = -1;
+    public static final short MASK_PARTICLE = ~CATEGORY_PARTICLE;
+
     public static RaycastHit[] RaycastAll(Vector2 position, Vector2 direction, float distance){
         if(distance == 0.0f || (direction.x == 0.0f && direction.y == 0.0f)) return null;
         if(Float.isNaN(position.x) || Float.isNaN(position.y)) return null;

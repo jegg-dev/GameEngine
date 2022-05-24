@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
@@ -23,7 +24,7 @@ public class Ship extends IteratedEntity implements IDamageable {
     public ProgressBar healthBar;
     public Label healthLabel;
 
-    public float thrustForce = 20;
+    public float thrustForce = 40;
     public float turnTorque = 14;
 
     public Entity stars;
@@ -39,7 +40,8 @@ public class Ship extends IteratedEntity implements IDamageable {
 
     public Ship(){
         Transform t = Game.CreateComponent(Transform.class);
-        PolygonRenderer poly = Game.CreateComponent(PolygonRenderer.class);
+        t.setPosition(new Vector3(0,0,1));
+        //PolygonRenderer poly = Game.CreateComponent(PolygonRenderer.class);
         float[] verts = new float[]{
                 -0.2f, -1,
                 0.2f, -1,
@@ -49,52 +51,64 @@ public class Ship extends IteratedEntity implements IDamageable {
                 -0.5f, 0.5f,
                 -0.5f, -0.5f
         };
-        poly.poly = new Polygon(verts);
-        poly.color = Color.GOLD;
+        //poly.poly = new Polygon(verts);
+        //poly.color = Color.GOLD;
+
+        SpriteRenderer sr = Game.CreateComponent(SpriteRenderer.class);
+        sr.setTexture(AssetDatabase.GetTexture("ship"), 256, 256);
+        sr.setColor(Color.GRAY);
+        t.scale.set(0.25f,0.25f);
+        add(sr);
 
         trail = Game.CreateComponent(ParticleSystem.class);
         trail.transform = t;
+        Polygon poly = new Polygon();
+        poly.setVertices(PolygonRenderer.boxVerts);
+        poly.setScale(0.3f, 0.3f);
+        trail.particleVerts = poly.getTransformedVertices();
+        trail.particleSprite = new Sprite(AssetDatabase.GetTexture("square-16"), 16, 16);
         trail.particleColor = Color.PURPLE;
-        trail.particleScale.set(0.25f, 0.25f);
-        trail.particleLocalVelocity.set(0, -1.5f);
-        trail.emissionLocalOffset.set(0, -1f);
+        trail.particleScale.set(0.02f, 0.02f);
+        trail.particleLocalVelocity.set(0, -5f);
+        trail.emissionLocalOffset.set(0, -1.15f);
         trail.useConeEmission = true;
         trail.coneEmissionRotation = 270;
         trail.coneEmissionAngle = 45;
-        trail.coneEmissionLength = 1;
+        trail.coneEmissionLength = 0.5f;
         trail.maxParticles = 10000;
         trail.systemPlayTime = 10;
-        trail.particleSpawnTime = 0.025f;
-        trail.particleLifetime = 5f;
+        trail.particleSpawnTime = 0.01f;
+        trail.particleLifetime = 1f;
         trail.loop = true;
-        trail.useCollisions = false;
+        trail.useCollisions = true;
+        trail.decreaseScaleWithLifetime = true;
         trail.destroyParticlesOnStop = false;
         add(trail);
 
         Rigidbody rb = Game.CreateRigidbody(verts, BodyDef.BodyType.DynamicBody, 1);
         rb.body.setUserData(this);
         rb.body.setBullet(true);
-        rb.body.setLinearDamping(1f);
+        rb.body.setLinearDamping(2f);
         rb.body.setAngularDamping(10);
         add(t);
         add(rb);
-        add(poly);
         add(Game.CreateComponent(IteratedFlag.class));
         Game.AddEntity(this);
 
         turret = Game.CreateWorldEntity(new Vector3(0,0,0),0);
-        CircleRenderer circle = new CircleRenderer();
-        circle.radius = 0.15f;
-        circle.color = Color.GOLD;
-        turret.add(circle);
+        SpriteRenderer sr2 = Game.CreateComponent(SpriteRenderer.class);
+        sr2.setTexture(AssetDatabase.GetTexture("circle-256"), 256, 256);
+        sr2.setColor(Color.GRAY);
+        turret.getComponent(Transform.class).scale.set(0.05f, 0.05f);
+        turret.add(sr2);
 
         stars = Game.CreateWorldEntity(new Vector3(0, 0, 0), 0);
-        SpriteRenderer sr = Game.CreateComponent(SpriteRenderer.class);
+        SpriteRenderer sr3 = Game.CreateComponent(SpriteRenderer.class);
         Texture tx = new Texture(Gdx.files.internal("stars-new.png"));
-        sr.setTexture(tx, 4096, 4096);
-        sr.setColor(Color.WHITE);
-        sr.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
-        stars.add(sr);
+        sr3.setTexture(tx, 4096, 4096);
+        sr3.setColor(Color.WHITE);
+        sr3.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
+        stars.add(sr3);
     }
 
     @Override
@@ -141,7 +155,7 @@ public class Ship extends IteratedEntity implements IDamageable {
             p.getComponent(Rigidbody.class).body.setTransform(turret.getComponent(Transform.class).getPosition2(), MathUtils.atan2(dir.y, dir.x) + MathUtils.HALF_PI);
             p.getTransform().setPosition(turret.getComponent(Transform.class).getPosition());
             p.getTransform().setRotation(MathUtils.atan2(dir.y, dir.x) * MathUtils.radiansToDegrees + 90);
-            p.getComponent(CircleRenderer.class).color = Color.BLUE;
+            p.getComponent(SpriteRenderer.class).setColor(Color.BLUE);
             fireTime = fireTimer;
         }
 

@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
+import com.jegg.spacesim.core.AssetDatabase;
 import com.jegg.spacesim.core.Game;
 import com.jegg.spacesim.core.ecs.*;
 import com.jegg.spacesim.core.ecs.Transform;
@@ -18,12 +19,15 @@ public class Projectile extends IteratedEntity implements ISensorContactListener
         this.owner = owner;
 
         Transform t = Game.CreateComponent(Transform.class);
-
-        CircleRenderer circle = Game.CreateComponent(CircleRenderer.class);
-        circle.radius = 0.5f;
-        circle.color = Color.RED;
-        add(circle);
         add(t);
+
+
+        SpriteRenderer sr = new SpriteRenderer();
+        sr.setTexture(AssetDatabase.GetTexture("circle-256"), 256, 256);
+        sr.setColor(Color.RED);
+        t.scale.set(0.1f, 0.1f);
+        add(sr);
+
 
         BodyDef def = new BodyDef();
         def.type = BodyDef.BodyType.DynamicBody;

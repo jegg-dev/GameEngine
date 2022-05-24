@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+import com.jegg.spacesim.core.GameCamera;
 
 import java.util.Comparator;
 
@@ -25,7 +26,7 @@ public class SpriteRenderSystem extends SortedIteratingSystem {
 
     private SpriteBatch batch;
     private Array<Entity> renderQueue;
-    private Comparator<Entity> comparator;
+    private Comparator<Entity> comparator = new ZComparator();
     private OrthographicCamera camera;
 
     private ComponentMapper<Transform> transformM;
@@ -49,17 +50,13 @@ public class SpriteRenderSystem extends SortedIteratingSystem {
         super.update(deltaTime);
         renderQueue.sort(comparator);
         camera.update();
-
-        batch.setProjectionMatrix(camera.combined);
-        batch.enableBlending();
-        batch.begin();
+        batch.setProjectionMatrix(GameCamera.GetMain().getCombined());
 
         for(Entity entity : renderQueue){
             SpriteRenderer sprite = spriteM.get(entity);
             sprite.render(transformM.get(entity), batch);
         }
 
-        batch.end();
         renderQueue.clear();
     }
 
