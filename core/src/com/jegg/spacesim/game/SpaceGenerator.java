@@ -1,17 +1,18 @@
 package com.jegg.spacesim.game;
 
+import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.utils.Array;
+import com.jegg.spacesim.core.AssetDatabase;
 import com.jegg.spacesim.core.Game;
 import com.jegg.spacesim.core.PerlinNoise;
-import com.jegg.spacesim.core.ecs.PolygonRenderer;
-import com.jegg.spacesim.core.ecs.Rigidbody;
+import com.jegg.spacesim.core.rendering.CircleRenderer;
+import com.jegg.spacesim.core.rendering.PolygonRenderer;
+import com.jegg.spacesim.core.physics.Rigidbody;
 import com.jegg.spacesim.core.ecs.StaticFlag;
 import com.jegg.spacesim.core.ecs.Transform;
-
-import java.util.HashMap;
+import com.jegg.spacesim.core.rendering.SpriteRenderer;
 
 public class SpaceGenerator {
     public final int objectsPerAngle = 2;
@@ -43,14 +44,20 @@ public class SpaceGenerator {
                     SpawnRandomAsteroid(pos);
             }
         }*/
-        for(float x = -(float)width / 2; x < (float)width / 2; x += step){
+        /*for(float x = -(float)width / 2; x < (float)width / 2; x += step){
             for(float y = -(float)height / 2; y < (float)height / 2; y += step){
                 Vector3 pos = new Vector3(x, y, 0);
                 if(PerlinNoise.At(pos.x, pos.y, 0.1f) > 0.5f) {
                     SpawnRandomAsteroid(pos);
                 }
             }
-        }
+        }*/
+        Entity planet = Game.CreateWorldEntity(new Vector3(0,0,0), 0);
+        SpriteRenderer sr = new SpriteRenderer();
+        sr.setTexture(AssetDatabase.GetTexture("circle-256"), 256, 256);
+        sr.setColor(Color.WHITE);
+        planet.add(sr);
+        planet.getComponent(Transform.class).scale.set(50, 50);
     }
 
     public void SpawnRandomAsteroid(Vector3 pos){

@@ -9,6 +9,9 @@ import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.jegg.spacesim.core.AssetDatabase;
 import com.jegg.spacesim.core.Game;
 import com.jegg.spacesim.core.ecs.*;
+import com.jegg.spacesim.core.physics.ISensorContactListener;
+import com.jegg.spacesim.core.physics.Rigidbody;
+import com.jegg.spacesim.core.rendering.SpriteRenderer;
 
 public class Loot extends IteratedEntity implements ISensorContactListener {
     private float timer = 5f;

@@ -1,21 +1,21 @@
-package com.jegg.spacesim.core.ecs;
+package com.jegg.spacesim.core.tilemap;
 
 import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.SortedIteratingSystem;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.jegg.spacesim.core.AssetDatabase;
 import com.jegg.spacesim.core.GameCamera;
+import com.jegg.spacesim.core.Input;
+import com.jegg.spacesim.core.ecs.InactiveFlag;
+import com.jegg.spacesim.core.rendering.SpriteRenderer;
+import com.jegg.spacesim.core.rendering.ZComparator;
 import com.jegg.spacesim.game.TerrainMap;
 import com.jegg.spacesim.game.TileDatabase;
 
@@ -29,8 +29,6 @@ public class TilemapRenderSystem extends SortedIteratingSystem {
 
     private ComponentMapper<TerrainMap> tilemapM;
 
-    private Sprite tileSprite;
-
     public TilemapRenderSystem(SpriteBatch batch){
         super(Family.all(TerrainMap.class).exclude(InactiveFlag.class).get(), new ZComparator());
 
@@ -39,9 +37,6 @@ public class TilemapRenderSystem extends SortedIteratingSystem {
         renderQueue = new Array<>();
         this.batch = batch;
 
-        tileSprite = new Sprite(AssetDatabase.GetTexture("square-16"), 16, 16);
-        tileSprite.setScale(0.0625f, 0.0625f);
-        tileSprite.setOrigin(0,0);
     }
 
     @Override
@@ -61,15 +56,30 @@ public class TilemapRenderSystem extends SortedIteratingSystem {
             int worldStartY = (int)pos.y - (tm.viewDist * chunkWidth);
             int worldEndY = (int)pos.y + ((tm.viewDist + 1) * chunkWidth);
 
+            if(Input.getKey(Input.K)){
+                ShapeRenderer sr = new ShapeRenderer();
+                sr.setProjectionMatrix(GameCamera.GetMain().getCombined());
+                sr.begin(ShapeRenderer.ShapeType.Line);
+                sr.setColor(Color.RED);
+
+                for(int x = worldStartX; x < worldEndX; x += chunkWidth){
+                    sr.line(x, worldStartY, x, worldEndY);
+                }
+                for(int y = worldStartY; y < worldEndY; y += chunkWidth){
+                    sr.line(worldStartX, y, worldEndX, y);
+                }
+                sr.end();
+            }
+
             for(int x = worldStartX; x < worldEndX; x++){
                 for(int y = worldStartY; y < worldEndY; y++){
                     if(x / chunkWidth > -mapWidth / 2 && x / chunkWidth < mapWidth / 2
                             && y / chunkWidth > -mapWidth / 2 && y / chunkWidth < mapWidth / 2) {
-                        Color color = TileDatabase.Get(tm.getTile(x, y)).color;
-                        if(color != Color.CLEAR){
-                            tileSprite.setColor(color);
-                            tileSprite.setOriginBasedPosition(x * tileWidth, y * tileWidth);
-                            tileSprite.draw(batch);
+                        Sprite sprite = TileDatabase.Get(tm.getTile(x, y)).sprite;
+                        if(sprite.getTexture() != null){
+                            sprite.setOriginBasedPosition(x * tileWidth, y * tileWidth);
+                            sprite.setScale(1f / sprite.getWidth() * tileWidth);
+                            sprite.draw(batch);
                         }
                     }
                 }

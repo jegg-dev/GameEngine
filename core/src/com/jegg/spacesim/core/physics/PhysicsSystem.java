@@ -1,4 +1,4 @@
-package com.jegg.spacesim.core.ecs;
+package com.jegg.spacesim.core.physics;
 
 import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
@@ -9,6 +9,10 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
+import com.jegg.spacesim.core.ecs.IteratedEntity;
+import com.jegg.spacesim.core.ecs.IteratedFlag;
+import com.jegg.spacesim.core.ecs.StaticFlag;
+import com.jegg.spacesim.core.ecs.Transform;
 
 public class PhysicsSystem extends IntervalIteratingSystem {
 

@@ -18,6 +18,11 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.jegg.spacesim.core.ecs.*;
 import com.jegg.spacesim.core.ecs.Transform;
+import com.jegg.spacesim.core.particles.ParticleSystemRenderer;
+import com.jegg.spacesim.core.physics.*;
+import com.jegg.spacesim.core.rendering.ShapeRenderSystem;
+import com.jegg.spacesim.core.rendering.SpriteRenderSystem;
+import com.jegg.spacesim.core.tilemap.TilemapRenderSystem;
 import com.jegg.spacesim.game.*;
 
 public class Game extends ApplicationAdapter {
@@ -44,19 +49,19 @@ public class Game extends ApplicationAdapter {
 		//shapeRenderer.setProjectionMatrix(gameCamera.getCombined());
 		//batch.setProjectionMatrix(gameCamera.getCombined());
 
-		Physics.world = new World(new Vector2(0,0),true);
+		Physics.CreateWorld();
 		ContactSystem contactSystem = new ContactSystem();
-		Physics.world.setContactListener(new RigidbodyContactListener(contactSystem));
-		Physics.world.setContinuousPhysics(false);
+		Physics.GetWorld().setContactListener(new RigidbodyContactListener(contactSystem));
+		Physics.GetWorld().setContinuousPhysics(false);
 
 		engine = new PooledEngine();
-		engine.addSystem(new PhysicsSystem(Physics.world, contactSystem));
+		engine.addSystem(new PhysicsSystem(Physics.GetWorld(), contactSystem));
 		engine.addSystem(new IteratingEntitySystem());
 		engine.addSystem(new SpriteRenderSystem(batch, gameCamera.orthoCam));
 		engine.addSystem(new TilemapRenderSystem(batch));
-		engine.addSystem(new ShapeRenderSystem(shapeRenderer));
+		engine.addSystem(new ShapeRenderSystem(shapeRenderer, batch));
 		engine.addSystem(new ParticleSystemRenderer(batch));
-		engine.addSystem(new PhysicsDebugSystem(Physics.world, gameCamera));
+		engine.addSystem(new PhysicsDebugSystem(Physics.GetWorld(), gameCamera));
 		engine.getSystem(PhysicsDebugSystem.class).setProcessing(false);
 		engine.addSystem(new GarbageSystem(engine));
 
@@ -108,13 +113,25 @@ public class Game extends ApplicationAdapter {
 		//table.setDebug(true);
 		Game.SetUIStage(stage);
 
-		new TerrainController();
+		TerrainController tc = new TerrainController();
+		//new SpaceGenerator().generate();
+
+		/*for(float x = -250.0f; x < 250.0f; x += tc.tilemap.getTileWidth()){
+			for(float y = -250.0f; y < 250.0f; y += tc.tilemap.getTileWidth()){
+				if((Math.sqrt((x * x) + (y * y)) <= 250.0f)){
+					//tc.addTile(new Vector3(x, y, 0));
+					tc.tilemap.setTile(new Vector3(x, y, 0), 1);
+				}
+			}
+		}*/
 
 		Ship ship = new Ship();
 		ship.healthBar = healthBar;
 		ship.healthLabel = healthLabel;
+		ship.getComponent(Transform.class).setPosition(new Vector3(1000, 0, 0));
+		ship.getComponent(Rigidbody.class).body.setTransform(new Vector2(500,0), 0);
 
-		new AIShip(ship);
+		//new AIShip(ship);
 	}
 
 	@Override
@@ -149,18 +166,21 @@ public class Game extends ApplicationAdapter {
 			float y = Input.getKey(Input.W) ? 1 : Input.getKey(Input.S) ? -1 : 0;
 			Vector3 vel = new Vector3(x,y,0);
 			vel.nor();
-			vel.scl(2);
-			gameCamera.getPosition().add(x,y,0);
+			vel.scl(100f * Gdx.graphics.getDeltaTime());
+			gameCamera.getPosition().add(vel.x,vel.y,0);
 			gameCamera.setZoom(gameCamera.getZoom() + (Input.Scroll * 0.1f));
 		}
 
-		shapeRenderer.setProjectionMatrix(gameCamera.getCombined());
-		shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
 		batch.setProjectionMatrix(gameCamera.getCombined());
 		batch.enableBlending();
 		batch.begin();
 
 		engine.update(Gdx.graphics.getDeltaTime());
+
+		batch.end();
+
+		shapeRenderer.setProjectionMatrix(gameCamera.getCombined());
+		shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
 
 		Array<DebugLine> toRemove = new Array<>();
 		for(int i = 0; i < lines.size; i++){
@@ -174,7 +194,6 @@ public class Game extends ApplicationAdapter {
 		lines.removeAll(toRemove, true);
 
 		shapeRenderer.end();
-		batch.end();
 
 		if(uiStage != null) {
 			uiStage.act(Gdx.graphics.getDeltaTime());
@@ -206,7 +225,7 @@ public class Game extends ApplicationAdapter {
 
 	@Override
 	public void dispose(){
-		Physics.world.dispose();
+		Physics.GetWorld().dispose();
 	}
 
 	public static Entity CreateEntity() {
@@ -247,7 +266,7 @@ public class Game extends ApplicationAdapter {
 		Rigidbody rb = CreateComponent(Rigidbody.class);
 		BodyDef def = new BodyDef();
 		def.type = bodyType;
-		Body body = Physics.world.createBody(def);
+		Body body = Physics.GetWorld().createBody(def);
 		PolygonShape shape = new PolygonShape();
 		shape.set(verts);
 		body.createFixture(shape, density);
@@ -261,7 +280,7 @@ public class Game extends ApplicationAdapter {
 
 	public static Rigidbody CreateRigidbody(BodyDef def, Shape shape, float density){
 		Rigidbody rb = CreateComponent(Rigidbody.class);
-		Body body = Physics.world.createBody(def);
+		Body body = Physics.GetWorld().createBody(def);
 		body.createFixture(shape, density);
 		Filter filter = new Filter();
 		filter.categoryBits = Physics.CATEGORY_NORMAL;

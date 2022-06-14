@@ -2,12 +2,19 @@ package com.jegg.spacesim.game;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.jegg.spacesim.core.AssetDatabase;
 import com.jegg.spacesim.core.Game;
 import com.jegg.spacesim.core.ecs.*;
 import com.jegg.spacesim.core.ecs.Transform;
+import com.jegg.spacesim.core.particles.ParticleSystem;
+import com.jegg.spacesim.core.physics.ISensorContactListener;
+import com.jegg.spacesim.core.physics.Rigidbody;
+import com.jegg.spacesim.core.rendering.PolygonRenderer;
+import com.jegg.spacesim.core.rendering.SpriteRenderer;
 
 public class Projectile extends IteratedEntity implements ISensorContactListener {
     public Entity owner;
@@ -21,13 +28,11 @@ public class Projectile extends IteratedEntity implements ISensorContactListener
         Transform t = Game.CreateComponent(Transform.class);
         add(t);
 
-
         SpriteRenderer sr = new SpriteRenderer();
         sr.setTexture(AssetDatabase.GetTexture("circle-256"), 256, 256);
         sr.setColor(Color.RED);
         t.scale.set(0.1f, 0.1f);
         add(sr);
-
 
         BodyDef def = new BodyDef();
         def.type = BodyDef.BodyType.DynamicBody;
@@ -39,9 +44,37 @@ public class Projectile extends IteratedEntity implements ISensorContactListener
         rb.body.setBullet(true);
         add(rb);
 
+        ParticleSystem trail = Game.CreateComponent(ParticleSystem.class);
+        trail.transform = t;
+        Polygon poly = new Polygon();
+        poly.setVertices(PolygonRenderer.boxVerts);
+        poly.setScale(0.3f, 0.3f);
+        trail.particleVerts = poly.getTransformedVertices();
+        trail.particleSprite = new Sprite(AssetDatabase.GetTexture("square-16"), 16, 16);
+        trail.particleColor = Color.BLUE;
+        trail.particleScale.set(0.04f, 0.04f);
+        trail.particleLocalVelocity.set(0, 0);
+        trail.emissionLocalOffset.set(0, 0);
+        trail.useConeEmission = true;
+        trail.coneEmissionRotation = 270;
+        trail.coneEmissionAngle = 45;
+        trail.coneEmissionLength = 0.5f;
+        trail.maxParticles = 10000;
+        trail.systemPlayTime = 10;
+        trail.particleSpawnTime = 0.01f;
+        trail.particleLifetime = 0.5f;
+        trail.loop = true;
+        trail.useCollisions = false;
+        trail.decreaseScaleWithLifetime = true;
+        trail.destroyParticlesOnStop = false;
+        trail.play();
+        add(trail);
+
         add(Game.CreateComponent(IteratedFlag.class));
         Game.AddEntity(this);
     }
+
+    public Projectile() {}
 
     @Override
     public void start(float deltaTime){

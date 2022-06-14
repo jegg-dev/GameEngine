@@ -1,11 +1,11 @@
-package com.jegg.spacesim.core.ecs;
+package com.jegg.spacesim.core.rendering;
 
 import com.badlogic.ashley.core.Component;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.jegg.spacesim.core.ecs.Transform;
 
 public class SpriteRenderer implements Component {
     private final Sprite sprite = new Sprite();

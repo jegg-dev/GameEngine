@@ -5,6 +5,8 @@ import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.jegg.spacesim.core.Game;
 import com.jegg.spacesim.core.ecs.*;
+import com.jegg.spacesim.core.physics.Rigidbody;
+import com.jegg.spacesim.core.rendering.PolygonRenderer;
 
 public class Station extends IteratedEntity {
 

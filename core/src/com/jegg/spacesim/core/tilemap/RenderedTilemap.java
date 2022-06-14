@@ -1,6 +1,5 @@
-package com.jegg.spacesim.core.ecs;
+package com.jegg.spacesim.core.tilemap;
 
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 
 public abstract class RenderedTilemap extends PrimitiveTilemap {

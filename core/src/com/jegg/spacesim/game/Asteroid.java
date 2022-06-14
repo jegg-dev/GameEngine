@@ -6,8 +6,8 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.jegg.spacesim.core.Game;
-import com.jegg.spacesim.core.ecs.PolygonRenderer;
-import com.jegg.spacesim.core.ecs.Rigidbody;
+import com.jegg.spacesim.core.rendering.PolygonRenderer;
+import com.jegg.spacesim.core.physics.Rigidbody;
 import com.jegg.spacesim.core.ecs.Transform;
 
 public class Asteroid extends Entity {

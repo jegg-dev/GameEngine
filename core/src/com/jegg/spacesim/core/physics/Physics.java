@@ -1,4 +1,4 @@
-package com.jegg.spacesim.core;
+package com.jegg.spacesim.core.physics;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.math.Vector2;
@@ -6,12 +6,18 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
 
 public class Physics {
-    protected static World world;
+    private static World world;
 
     public static final short CATEGORY_NORMAL = 0x0001;
     public static final short CATEGORY_PARTICLE = 0x0002;
     public static final short MASK_NORMAL = -1;
     public static final short MASK_PARTICLE = ~CATEGORY_PARTICLE;
+
+    public static void CreateWorld(){
+        if(world == null){
+            world = new World(new Vector2(0, 0), true);
+        }
+    }
 
     public static RaycastHit[] RaycastAll(Vector2 position, Vector2 direction, float distance){
         if(distance == 0.0f || (direction.x == 0.0f && direction.y == 0.0f)) return null;

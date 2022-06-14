@@ -2,6 +2,7 @@ package com.jegg.spacesim.core;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 
 import java.util.HashMap;
 
@@ -13,6 +14,7 @@ public class AssetDatabase {
         textures.put("circle-256", new Texture(Gdx.files.internal("circle-256px.png")));
         textures.put("square-16", new Texture(Gdx.files.internal("square-16px.png")));
         textures.put("ship", new Texture(Gdx.files.internal("ship.png")));
+        textures.put("rock-tile", new Texture(Gdx.files.internal("rock-tile-32px.png")));
     }
 
     public static Texture GetTexture(String name){

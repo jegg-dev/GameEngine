@@ -1,11 +1,10 @@
-package com.jegg.spacesim.core.ecs;
+package com.jegg.spacesim.core.particles;
 
 import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
@@ -13,10 +12,13 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Filter;
 import com.jegg.spacesim.core.Game;
-import com.jegg.spacesim.core.Physics;
+import com.jegg.spacesim.core.ecs.ComponentMappers;
+import com.jegg.spacesim.core.rendering.PolygonRenderer;
+import com.jegg.spacesim.core.ecs.Transform;
+import com.jegg.spacesim.core.physics.Physics;
+import com.jegg.spacesim.core.physics.Rigidbody;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 public class ParticleSystem implements Component {

@@ -2,6 +2,7 @@ package com.jegg.spacesim.game;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector3;
 import com.jegg.spacesim.core.Game;
 import com.jegg.spacesim.core.ecs.ComponentMappers;
@@ -10,8 +11,8 @@ public class SpawnerTile<T extends Entity> extends Tile{
     public Class<T> entityType;
     public boolean useHealth;
 
-    public SpawnerTile(Color color, int hardness, boolean useCollider, Class<T> entityType, boolean useHealth) {
-        super(color, hardness, useCollider);
+    public SpawnerTile(Sprite sprite, Color color, int hardness, boolean useCollider, Class<T> entityType, boolean useHealth) {
+        super(sprite, color, hardness, useCollider);
         this.entityType = entityType;
         this.useHealth = useHealth;
     }

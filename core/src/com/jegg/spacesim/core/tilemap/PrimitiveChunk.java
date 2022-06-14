@@ -1,4 +1,4 @@
-package com.jegg.spacesim.core.ecs;
+package com.jegg.spacesim.core.tilemap;
 
 import com.badlogic.gdx.math.Vector2;
 

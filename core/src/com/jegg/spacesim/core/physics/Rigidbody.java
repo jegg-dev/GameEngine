@@ -1,4 +1,4 @@
-package com.jegg.spacesim.core.ecs;
+package com.jegg.spacesim.core.physics;
 
 import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Engine;
@@ -6,6 +6,9 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
+import com.jegg.spacesim.core.rendering.PolygonRenderer;
+import com.jegg.spacesim.core.ecs.StaticFlag;
+import com.jegg.spacesim.core.ecs.Transform;
 
 public class Rigidbody implements Component {
 
@@ -16,7 +19,7 @@ public class Rigidbody implements Component {
         PolygonRenderer poly = engine.createComponent(PolygonRenderer.class);
         poly.poly = new Polygon(PolygonRenderer.boxVerts);
         poly.poly.setScale(width, height);
-        Transform t = engine.createComponent(Transform.class);
+        com.jegg.spacesim.core.ecs.Transform t = engine.createComponent(Transform.class);
 
         Rigidbody rb = engine.createComponent(Rigidbody.class);
         BodyDef def = new BodyDef();

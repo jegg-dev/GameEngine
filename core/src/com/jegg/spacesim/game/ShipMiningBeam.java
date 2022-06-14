@@ -1,13 +1,14 @@
 package com.jegg.spacesim.game;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.jegg.spacesim.core.*;
 import com.jegg.spacesim.core.ecs.Transform;
+import com.jegg.spacesim.core.physics.Physics;
+import com.jegg.spacesim.core.physics.RaycastHit;
 
 public class ShipMiningBeam {
     public Ship ship;

@@ -9,6 +9,9 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.jegg.spacesim.core.Game;
 import com.jegg.spacesim.core.ecs.*;
 import com.jegg.spacesim.core.ecs.Transform;
+import com.jegg.spacesim.core.physics.ISensorContactListener;
+import com.jegg.spacesim.core.physics.Rigidbody;
+import com.jegg.spacesim.core.rendering.PolygonRenderer;
 
 public class DodgeEnemy extends IteratedEntity implements ISensorContactListener {
     public float speed = 10.0f;

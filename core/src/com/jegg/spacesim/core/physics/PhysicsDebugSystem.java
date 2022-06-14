@@ -1,4 +1,4 @@
-package com.jegg.spacesim.core.ecs;
+package com.jegg.spacesim.core.physics;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;

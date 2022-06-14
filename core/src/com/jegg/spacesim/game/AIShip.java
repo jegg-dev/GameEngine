@@ -10,6 +10,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.jegg.spacesim.core.*;
 import com.jegg.spacesim.core.ecs.*;
 import com.jegg.spacesim.core.ecs.Transform;
+import com.jegg.spacesim.core.physics.Physics;
+import com.jegg.spacesim.core.physics.RaycastHit;
+import com.jegg.spacesim.core.physics.Rigidbody;
+import com.jegg.spacesim.core.rendering.SpriteRenderer;
 
 import java.util.Arrays;
 import java.util.HashMap;

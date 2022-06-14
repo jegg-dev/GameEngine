@@ -1,20 +1,24 @@
-package com.jegg.spacesim.core.ecs;
+package com.jegg.spacesim.core.rendering;
 
 import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.SortedIteratingSystem;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.jegg.spacesim.core.GameCamera;
+import com.jegg.spacesim.core.ecs.InactiveFlag;
+import com.jegg.spacesim.core.ecs.Transform;
 
 import java.util.Comparator;
 
 public class ShapeRenderSystem extends SortedIteratingSystem {
 
     private final ShapeRenderer renderer;
+    private final SpriteBatch batch;
     private final Array<Entity> renderQueue;
     private Comparator<Entity> comparator;
 
@@ -23,7 +27,7 @@ public class ShapeRenderSystem extends SortedIteratingSystem {
     private final ComponentMapper<CircleRenderer> circleM;
     private final ComponentMapper<LineRenderer> lineM;
 
-    public ShapeRenderSystem(ShapeRenderer renderer){
+    public ShapeRenderSystem(ShapeRenderer renderer, SpriteBatch batch){
         super(Family.all(Transform.class).one(PolygonRenderer.class, CircleRenderer.class, LineRenderer.class).exclude(InactiveFlag.class).get(), new ZComparator());
         transformM = ComponentMapper.getFor(Transform.class);
         polygonM = ComponentMapper.getFor(PolygonRenderer.class);
@@ -32,6 +36,7 @@ public class ShapeRenderSystem extends SortedIteratingSystem {
 
         renderQueue = new Array<>();
         this.renderer = renderer;
+        this.batch = batch;
     }
 
     @Override
@@ -39,7 +44,9 @@ public class ShapeRenderSystem extends SortedIteratingSystem {
         super.update(deltaTime);
         //renderQueue.sort(comparator);
 
+        batch.end();
         renderer.setProjectionMatrix(GameCamera.GetMain().getCombined());
+        renderer.begin(ShapeRenderer.ShapeType.Line);
 
         for(Entity entity : renderQueue){
             if(polygonM.has(entity)) {
@@ -90,6 +97,8 @@ public class ShapeRenderSystem extends SortedIteratingSystem {
         }
 
         renderQueue.clear();
+        renderer.end();
+        batch.begin();
     }
 
     @Override

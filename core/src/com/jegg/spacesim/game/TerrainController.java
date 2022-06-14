@@ -11,7 +11,7 @@ public class TerrainController extends IteratedEntity {
     public TerrainMap tilemap;
 
     public TerrainController(){
-        tilemap = new TerrainMap(100,16, 1.0f, 3);
+        tilemap = new TerrainMap(500,16, 1f, 4);
         add(tilemap);
         tilemap.collider.collisionEntity = this;
         add(tilemap.collider);

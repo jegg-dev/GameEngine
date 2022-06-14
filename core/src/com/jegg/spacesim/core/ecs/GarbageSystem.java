@@ -1,11 +1,10 @@
 package com.jegg.spacesim.core.ecs;
 
-import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
-import com.jegg.spacesim.core.Physics;
+import com.jegg.spacesim.core.physics.Physics;
 
 public class GarbageSystem extends IteratingSystem {
     private final Engine engine;

@@ -1,4 +1,4 @@
-package com.jegg.spacesim.core.ecs;
+package com.jegg.spacesim.core.rendering;
 
 import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
@@ -10,6 +10,8 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.jegg.spacesim.core.GameCamera;
+import com.jegg.spacesim.core.ecs.InactiveFlag;
+import com.jegg.spacesim.core.ecs.Transform;
 
 import java.util.Comparator;
 
