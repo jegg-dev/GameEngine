@@ -1,6 +1,7 @@
 package com.jegg.engine.core;
 
 import com.badlogic.ashley.core.*;
+import com.badlogic.ashley.core.Component;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
@@ -8,11 +9,12 @@ import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.physics.box2d.Shape;
 import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
@@ -26,7 +28,11 @@ import com.jegg.engine.core.rendering.SpriteRenderSystem;
 import com.jegg.engine.core.tilemap.TilemapRenderSystem;
 import com.jegg.engine.game.*;
 
+import java.awt.*;
+import java.awt.event.ActionEvent;
+
 public class Game extends ApplicationAdapter {
+	private static StartupAction Startup;
 	private static Engine engine;
 	private static Stage uiStage;
 	private static GameCamera gameCamera;
@@ -36,6 +42,11 @@ public class Game extends ApplicationAdapter {
 	public static boolean debugging = false;
 	private final static Array<IIteratedBehavior> scripts = new Array<>();
 	public static Array<DebugLine> lines = new Array<>();
+
+	public Game(StartupAction startup){
+		super();
+		Startup = startup;
+	}
 
 	@Override
 	public void create () {
@@ -68,74 +79,7 @@ public class Game extends ApplicationAdapter {
 		engine.getSystem(PhysicsDebugSystem.class).setProcessing(false);
 		engine.addSystem(new GarbageSystem(engine));
 
-		//---GAME SETUP---
-
-		Skin skin = new Skin(Gdx.files.internal("skins/flat/skin.json"));
-		Stage stage = new Stage(new ScreenViewport());
-		Table table = new Table();
-		table.setFillParent(true);
-		stage.addActor(table);
-
-		FPSCounter fpsCounter = new FPSCounter("FPS", skin);
-		Image background = new Image(new Texture(new Pixmap(1,1, Pixmap.Format.Alpha)));
-		fpsCounter.getStyle().background = background.getDrawable();
-		fpsCounter.getStyle().font.getData().setScale(1f, 1f);
-		table.top().add(fpsCounter).padLeft(5.0f).padTop(2.0f).width(25).height(15).expandX().left().top();
-
-		TextButton tb = new TextButton("Full", skin);
-		tb.addListener(new ClickListener(){
-			@Override
-			public void clicked(InputEvent e, float x, float y){
-				if(!Gdx.graphics.isFullscreen()) {
-					Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
-				}
-				else{
-					Gdx.graphics.setWindowedMode(800, 600);
-				}
-			}
-		});
-		table.add(tb).width(50).height(50).right();
-
-		table.row().expandY().colspan(2);
-
-		ProgressBar healthBar = new ProgressBar(0, 100, 1, false, skin);
-		healthBar.setAnimateDuration(0.5f);
-		healthBar.setAnimateInterpolation(Interpolation.fastSlow);
-		healthBar.getStyle().background.setMinHeight(25);
-		healthBar.getStyle().background.setMinWidth(300);
-		healthBar.getStyle().knobBefore.setMinWidth(300);
-		healthBar.getStyle().knobBefore.setMinHeight(25);
-		table.add(healthBar).width(500).height(25).padBottom(5.0f).center().bottom();
-
-		Label healthLabel = new Label("Health", skin);
-		Table overlayTable = new Table();
-		stage.addActor(overlayTable);
-		overlayTable.setFillParent(true);
-		overlayTable.bottom().add(healthLabel).padBottom(5.0f).center();
-
-		//table.setDebug(true);
-		Game.SetUIStage(stage);
-
-		TerrainController tc = new TerrainController();
-		//new Spacemap(500, 64, 16f);
-
-		/*for(float x = -250.0f; x < 250.0f; x += tc.tilemap.getTileWidth()){
-			for(float y = -250.0f; y < 250.0f; y += tc.tilemap.getTileWidth()){
-				if((Math.sqrt((x * x) + (y * y)) <= 250.0f)){
-					tc.tilemap.setTile(new Vector3(x, y, 0), 1);
-				}
-			}
-		}*/
-
-		Ship ship = new Ship();
-		ship.healthBar = healthBar;
-		ship.healthLabel = healthLabel;
-		ship.tc = tc;
-		//ship.getComponent(Transform.class).setPosition(new Vector3(1000, 0, 0));
-		//ship.getComponent(Rigidbody.class).body.setTransform(new Vector2(500,0), 0);
-
-		//new AIShip(ship);
-		new LineDrawing();
+		Startup.invoke(this);
 	}
 
 	@Override
