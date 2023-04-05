@@ -5,20 +5,17 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import com.jegg.engine.core.Game;
-import com.jegg.engine.core.StartupAction;
-import com.jegg.engine.game.FPSCounter;
-import com.jegg.engine.game.LineDrawing;
-
-import java.awt.event.ActionEvent;
+import com.jegg.engine.Game;
+import com.jegg.engine.StartupAction;
+import com.jegg.engine.ecs.InactiveFlag;
+import com.jegg.game.*;
+import com.jegg.game.ui.FPSCounter;
 
 public class DesktopLauncher {
 	public static void main(String[] args) {
@@ -58,25 +55,25 @@ public class DesktopLauncher {
 
 				table.row().expandY().colspan(2);
 
-				/*ProgressBar healthBar = new ProgressBar(0, 100, 1, false, skin);
+				ProgressBar healthBar = new ProgressBar(0, 100, 1, false, skin);
 				healthBar.setAnimateDuration(0.5f);
 				healthBar.setAnimateInterpolation(Interpolation.fastSlow);
 				healthBar.getStyle().background.setMinHeight(25);
 				healthBar.getStyle().background.setMinWidth(300);
 				healthBar.getStyle().knobBefore.setMinWidth(300);
 				healthBar.getStyle().knobBefore.setMinHeight(25);
-				table.add(healthBar).width(500).height(25).padBottom(5.0f).center().bottom();*/
+				table.add(healthBar).width(500).height(25).padBottom(5.0f).center().bottom();
 
-				//Label healthLabel = new Label("Health", skin);
-				//Table overlayTable = new Table();
-				//stage.addActor(overlayTable);
-				//overlayTable.setFillParent(true);
-				//overlayTable.bottom().add(healthLabel).padBottom(5.0f).center();
+				Label healthLabel = new Label("Health", skin);
+				Table overlayTable = new Table();
+				stage.addActor(overlayTable);
+				overlayTable.setFillParent(true);
+				overlayTable.bottom().add(healthLabel).padBottom(5.0f).center();
 
 				//table.setDebug(true);
 				Game.SetUIStage(stage);
 
-				//TerrainController tc = new TerrainController();
+				TerrainController tc = new TerrainController();
 				//new Spacemap(500, 64, 16f);
 
 				/*for(float x = -250.0f; x < 250.0f; x += tc.tilemap.getTileWidth()){
@@ -87,15 +84,18 @@ public class DesktopLauncher {
 					}
 				}*/
 
-				//Ship ship = new Ship();
-				//ship.healthBar = healthBar;
-				//ship.healthLabel = healthLabel;
-				//ship.tc = tc;
+				PlayerShip playerShip = new PlayerShip();
+				playerShip.healthBar = healthBar;
+				playerShip.healthLabel = healthLabel;
+				playerShip.tc = tc;
+
 				//ship.getComponent(Transform.class).setPosition(new Vector3(1000, 0, 0));
 				//ship.getComponent(Rigidbody.class).body.setTransform(new Vector2(500,0), 0);
 
-				//new AIShip(ship);
-				new LineDrawing();
+				new Station();
+				//new AIShip(playerShip);
+				//new LineDrawing();
+				//new RigidbodyDraw();
 			}
 		}), config);
 	}

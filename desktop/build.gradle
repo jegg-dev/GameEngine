@@ -1,28 +1,29 @@
-sourceCompatibility = 1.7
-sourceSets.main.java.srcDirs = [ "src/" ]
+sourceSets.main.java.srcDirs = [ "src/", "../core/src/" ]
 sourceSets.main.resources.srcDirs = ["../core/assets"]
 
-project.ext.mainClassName = "com.jegg.spacesim.desktop.DesktopLauncher"
+project.ext.mainClassName = "com.jegg.engine.desktop.DesktopLauncher"
 project.ext.assetsDir = new File("../core/assets")
 
-task run(dependsOn: classes, type: JavaExec) {
-    main = project.mainClassName
+tasks.register('run', JavaExec) {
+    dependsOn classes
+    mainClass = project.mainClassName
     classpath = sourceSets.main.runtimeClasspath
     standardInput = System.in
     workingDir = project.assetsDir
-    ignoreExitValue = true
+    ignoreExitValue = true as JavaExecSpec
 }
 
-task debug(dependsOn: classes, type: JavaExec) {
-    main = project.mainClassName
+tasks.register('debug', JavaExec) {
+    dependsOn classes
+    mainClass = project.mainClassName
     classpath = sourceSets.main.runtimeClasspath
     standardInput = System.in
     workingDir = project.assetsDir
-    ignoreExitValue = true
+    ignoreExitValue = true as JavaExecSpec
     debug = true
 }
 
-task dist(type: Jar) {
+tasks.register('dist', Jar) {
     manifest {
         attributes 'Main-Class': project.mainClassName
     }
