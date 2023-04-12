@@ -60,6 +60,7 @@ public class Loot extends IteratedEntity implements ISensorContactListener {
             Transform t = getTransform();
             Transform shipT = targetShip.getTransform();
             if(Vector2.dst(t.getPosition2().x, t.getPosition2().y, shipT.getPosition2().x, shipT.getPosition2().y) < 0.5f){
+                targetShip.inventory.addItem(new ItemInstance(0, 1));
                 Game.DestroyEntity(this);
             }
             else {

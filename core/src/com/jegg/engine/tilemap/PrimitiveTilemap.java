@@ -15,15 +15,13 @@ public class PrimitiveTilemap implements Component {
         this.chunkWidth = chunkWidth;
         this.tileWidth = tileWidth;
         chunks = new PrimitiveChunk[mapWidthInChunks * mapWidthInChunks];
+        for(int i = 0; i < chunks.length; i++){
+            chunks[i] = new PrimitiveChunk(this, chunkWidth, i);
+        }
     }
 
     private PrimitiveChunk getChunk(int x, int y){
-        int chunkNum = (x / chunkWidth + (mapWidthInChunks / 2)) + ((y / chunkWidth + (mapWidthInChunks / 2)) * mapWidthInChunks);
-
-        if(chunks[chunkNum] == null){
-            chunks[chunkNum] = new PrimitiveChunk(this, chunkWidth, chunkNum);
-        }
-        return chunks[chunkNum];
+        return chunks[(x / chunkWidth + (mapWidthInChunks / 2)) + ((y / chunkWidth + (mapWidthInChunks / 2)) * mapWidthInChunks)];
     }
 
     //Placeholder for other tilemaps
@@ -34,8 +32,8 @@ public class PrimitiveTilemap implements Component {
         return ((int)chunkPos.x / chunkWidth + (mapWidthInChunks / 2)) + (((int)chunkPos.y / chunkWidth + (mapWidthInChunks / 2)) * mapWidthInChunks);
     }
 
-    public int getChunkNum(Vector3 worldPos){
-        return getChunkNum(MathUtils.floor(worldPos.x / tileWidth), MathUtils.floor(worldPos.y / tileWidth));
+    public int getChunkNumByChunkPosition(int x, int y){
+        return (x / chunkWidth + (mapWidthInChunks / 2) + (y / chunkWidth + (mapWidthInChunks / 2)) * mapWidthInChunks);
     }
 
     public int getTile(int x, int y){
@@ -49,6 +47,7 @@ public class PrimitiveTilemap implements Component {
 
     public void setTile(int x, int y, int value){
         Vector2 chunkPos = TileToChunkPosition(x, y);
+
         getChunk((int)chunkPos.x, (int)chunkPos.y).setTile(x - (int)chunkPos.x, y - (int)chunkPos.y, value);
     }
 
@@ -77,37 +76,16 @@ public class PrimitiveTilemap implements Component {
     }
 
     public Vector2 TileToChunkPosition(Vector2 pos){
-        return new Vector2(CustomRound(pos.x / (chunkWidth / 2) * 0.5f), CustomRound(pos.y / (chunkWidth / 2) * 0.5f)).scl(chunkWidth);
+        return new Vector2(MathUtils.floor(pos.x / (chunkWidth / 2) * 0.5f), MathUtils.floor(pos.y / (chunkWidth / 2) * 0.5f)).scl(chunkWidth);
     }
 
     public Vector2 TileToChunkPosition(int x, int y){
-        return new Vector2(CustomRound((float)x / (chunkWidth / 2) * 0.5f), CustomRound((float)y / (chunkWidth / 2) * 0.5f)).scl(chunkWidth);
+        return new Vector2(MathUtils.floor((float)x / (chunkWidth / 2) * 0.5f), MathUtils.floor((float)y / (chunkWidth / 2) * 0.5f)).scl(chunkWidth);
     }
 
     public Vector2 ChunkNumToPosition(int num){
-        int y = MathUtils.floor((float)num / (float)getMapWidthInChunks());
-        int x = num - (y * getMapWidthInChunks());
-        return new Vector2(x, y).sub(getMapWidthInChunks() / 2, getMapWidthInChunks() / 2).scl(getChunkWidth());
-    }
-
-    public static int CustomRound(float value){
-        /*float v = value - MathUtils.floor(value);
-        if (v >= 0.5f)
-        {
-            return MathUtils.ceil(value);
-        }
-        else if (v > 0)
-        {
-            return MathUtils.floor(value);
-        }
-        else if(v < -0.5f)
-        {
-            return MathUtils.floor(value);
-        }
-        else
-        {
-            return MathUtils.ceil(value);
-        }*/
-        return MathUtils.floor(value);
+        int y = MathUtils.floor((float)num / mapWidthInChunks);
+        int x = num - (y * mapWidthInChunks);
+        return new Vector2(x, y).sub(mapWidthInChunks / 2, mapWidthInChunks / 2).scl(chunkWidth);
     }
 }

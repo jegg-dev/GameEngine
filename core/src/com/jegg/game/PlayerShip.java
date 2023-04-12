@@ -25,6 +25,7 @@ import com.jegg.engine.rendering.SpriteRenderer;
 public class PlayerShip extends IteratedEntity implements IDamageable {
     public Player player;
     public int health = 100;
+    public Inventory inventory = new Inventory(4);
 
     public float zoom = 8.0f;
 
@@ -35,15 +36,14 @@ public class PlayerShip extends IteratedEntity implements IDamageable {
 
     public TerrainController tc;
 
-    public float thrustForce = 100;
-    public float turnTorque = 200;
+    public float thrustForce = 75;
+    public float turnTorque = 100;
 
     public Entity stars;
 
     public ParticleSystem trail;
 
     public Entity turret;
-    public Entity cargo;
 
     public float fireTimer = 0.15f;
     public float fireTime = 0.15f;
@@ -54,7 +54,7 @@ public class PlayerShip extends IteratedEntity implements IDamageable {
         Transform t = Game.CreateComponent(Transform.class);
         t.setPosition(new Vector3(0,0,1));
         //PolygonRenderer poly = Game.CreateComponent(PolygonRenderer.class);
-        float[] verts = new float[]{
+        /*float[] verts = new float[]{
                 -0.2f, -1,
                 0.2f, -1,
                 0.5f, -0.5f,
@@ -62,14 +62,19 @@ public class PlayerShip extends IteratedEntity implements IDamageable {
                 0, 1f,
                 -0.5f, 0.5f,
                 -0.5f, -0.5f
+        };*/
+        float[] verts = new float[]{
+                0, 1,
+                1f, -1,
+                -1f, -1
         };
         //poly.poly = new Polygon(verts);
         //poly.color = Color.GOLD;
 
         SpriteRenderer sr = Game.CreateComponent(SpriteRenderer.class);
-        sr.setTexture(AssetDatabase.GetTexture("ship"), 256, 256);
+        sr.setTexture(AssetDatabase.GetTexture("ship-triangle"), 256, 256);
         sr.setColor(Color.GRAY);
-        t.scale.set(0.4f, 0.4f);
+        t.scale.set(0.2f, 0.2f);
         add(sr);
 
         trail = Game.CreateComponent(ParticleSystem.class);
@@ -79,7 +84,7 @@ public class PlayerShip extends IteratedEntity implements IDamageable {
         trail.particleColor = Color.PURPLE;
         trail.particleScale.set(0.04f, 0.04f);
         trail.particleLocalVelocity.set(0, -5f);
-        trail.emissionLocalOffset.set(0, -2f);
+        trail.emissionLocalOffset.set(0, -1f);
         trail.useConeEmission = true;
         trail.coneEmissionRotation = 270;
         trail.coneEmissionAngle = 45;
@@ -95,29 +100,30 @@ public class PlayerShip extends IteratedEntity implements IDamageable {
         add(trail);
 
         Polygon scaledVerts = new Polygon(verts);
-        scaledVerts.scale(0.6f);
+        scaledVerts.scale(0.1f);
         Rigidbody rb = Game.CreateRigidbody(scaledVerts.getTransformedVertices(), BodyDef.BodyType.DynamicBody, 1);
         rb.body.setUserData(this);
         rb.body.setBullet(true);
         //rb.body.setLinearDamping(2f);
         rb.body.setAngularDamping(10);
+        rb.body.getFixtureList().get(0).getFilterData().maskBits = Physics.MASK_PARTICLE;
         add(t);
         add(rb);
         add(Game.CreateComponent(IteratedFlag.class));
         Game.AddEntity(this);
 
         turret = Game.CreateWorldEntity(new Vector3(0,0,0),0);
-        SpriteRenderer sr2 = Game.CreateComponent(SpriteRenderer.class);
-        sr2.setTexture(AssetDatabase.GetTexture("circle"), 256, 256);
-        sr2.setColor(Color.GRAY);
+        //SpriteRenderer sr2 = Game.CreateComponent(SpriteRenderer.class);
+        //sr2.setTexture(AssetDatabase.GetTexture("circle"), 256, 256);
+        //sr2.setColor(Color.GRAY);
         turret.getComponent(Transform.class).scale.set(0.05f, 0.05f);
-        turret.add(sr2);
+        //turret.add(sr2);
 
-        cargo = rb.CreateSpriteFixture(t, AssetDatabase.GetTexture("square"), PolygonRenderer.boxVerts, 0.5f, 1.5f, 1.25f, 0, 0);
+        /*Entity cargo = rb.CreateSpriteFixture(t, AssetDatabase.GetTexture("square"), PolygonRenderer.boxVerts, 0.5f, 1.5f, 1.25f, 0, 0);
         cargo.getComponent(SpriteRenderer.class).setColor(Color.DARK_GRAY);
 
         Entity cargo2 = rb.CreateSpriteFixture(t, AssetDatabase.GetTexture("square"), PolygonRenderer.boxVerts, 0.5f, 1.5f, -1.25f, 0, 0);
-        cargo2.getComponent(SpriteRenderer.class).setColor(Color.DARK_GRAY);
+        cargo2.getComponent(SpriteRenderer.class).setColor(Color.DARK_GRAY);*/
 
         stars = Game.CreateWorldEntity(new Vector3(0, 0, 0), 0);
         SpriteRenderer sr3 = Game.CreateComponent(SpriteRenderer.class);
@@ -258,6 +264,15 @@ public class PlayerShip extends IteratedEntity implements IDamageable {
 
         rb.body.applyTorque(Input.getKey(Input.D) ? -turnTorque : Input.getKey(Input.A) ? turnTorque : 0, true);
 
+        if(rb.body.getLinearVelocity().len() > 60.0f){
+            trail.particleColor = Color.WHITE;
+            rb.body.getFixtureList().get(0).getFilterData().maskBits = ~Physics.MASK_NORMAL;
+            if(!trail.isPlaying()) trail.play();
+        }
+        else{
+            trail.particleColor = Color.PURPLE;
+            rb.body.getFixtureList().get(0).getFilterData().maskBits = Physics.MASK_PARTICLE;
+        }
         /*
         Vector2 thrust;
         float x = touchpad.getKnobPercentX();
