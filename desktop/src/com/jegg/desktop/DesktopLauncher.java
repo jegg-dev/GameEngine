@@ -1,4 +1,4 @@
-package com.jegg.engine.desktop;
+package com.jegg.desktop;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
@@ -111,7 +111,7 @@ public class DesktopLauncher {
 			//ship.getComponent(Rigidbody.class).body.setTransform(new Vector2(500,0), 0);
 
 			new Station();
-			//new AIShip(playerShip);
+			new AIShip(playerShip);
 			//new LineDrawing();
 			//new RigidbodyDraw();
 		}), config);

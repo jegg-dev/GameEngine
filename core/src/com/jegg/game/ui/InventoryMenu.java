@@ -7,8 +7,6 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Stack;
-import com.jegg.engine.Game;
 import com.jegg.game.Inventory;
 
 public class InventoryMenu extends Actor {
@@ -16,8 +14,8 @@ public class InventoryMenu extends Actor {
     public Inventory inventory;
 
     private InventorySlot[] itemSlots;
-    private Texture slotTexture;
-    private Skin skin = new Skin(Gdx.files.internal("skins/flat/skin.json"));
+    private final Texture slotTexture;
+    private final Skin skin = new Skin(Gdx.files.internal("skins/flat/skin.json"));
 
     public InventoryMenu(Group group, Inventory inventory){
         this.group = group;
