@@ -37,7 +37,7 @@ public class AIShip extends IteratedEntity implements IDamageable {
         this.targetShip = targetShip;
 
         Transform t = Game.CreateComponent(Transform.class);
-        float[] verts = new float[]{
+        /*float[] verts = new float[]{
             -0.2f, -1,7,
             0.2f, -1,
             0.5f, -0.5f,
@@ -45,14 +45,18 @@ public class AIShip extends IteratedEntity implements IDamageable {
             0, 1f,
             -0.5f, 0.5f,
             -0.5f, -0.5f
+        };*/
+        float[] verts = new float[]{
+                0, 1,
+                1f, -1,
+                -1f, -1
         };
 
         SpriteRenderer sr = Game.CreateComponent(SpriteRenderer.class);
-        sr.setTexture(AssetDatabase.GetTexture("ship"), 256, 256);
+        sr.setTexture(AssetDatabase.GetTexture("ship-triangle"), 256, 256);
         sr.setColor(Color.GRAY);
         t.scale.set(0.25f,0.25f);
         add(sr);
-
         Rigidbody rb = Game.CreateRigidbody(verts, BodyDef.BodyType.DynamicBody, 1);
         rb.body.setAngularDamping(5);
         rb.body.setLinearDamping(2f);
@@ -119,7 +123,6 @@ public class AIShip extends IteratedEntity implements IDamageable {
         Rigidbody rb = getComponent(Rigidbody.class);
 
         Vector2 dir = targetShip.getTransform().getPosition2().sub(t.getPosition2());
-        float dist = dir.len();
         dir.nor();
 
         Vector3 futurePos = targetShip.getTransform().getPosition();
@@ -144,6 +147,7 @@ public class AIShip extends IteratedEntity implements IDamageable {
             float weight = dot * 2 + (closestDist / scanDist * 100);
             weights.put(weight, scanDir.nor());
         }
+        //Debug lines
         /*for(int i = 0; i < weights.size(); i++){
             Game.lines.add(new DebugLine(simPos, simPos.cpy().add(weights.values().toArray(new Vector2[0])[i].scl(weights.keySet().toArray(new Float[0])[i]/10)), 0, Color.CYAN));
         }*/

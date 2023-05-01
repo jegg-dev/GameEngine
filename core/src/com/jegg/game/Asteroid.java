@@ -53,7 +53,7 @@ public class Asteroid extends Entity {
             Game.DestroyEntity(this);
         }
         else{
-            Loot loot = new Loot(Color.GRAY);
+            Loot loot = new Loot(new ItemInstance(0, 1), Color.GRAY);
             Vector3 position = t.getPosition();
             float rotation = t.getRotation();
             loot.getComponent(Rigidbody.class).body.setTransform(position.x, position.y, rotation * MathUtils.degreesToRadians);

@@ -47,6 +47,8 @@ public class TilemapRenderSystem extends SortedIteratingSystem {
     public void update(float deltaTime){
         super.update(deltaTime);
 
+
+
         for(Entity entity : renderQueueList){
             RenderedTilemap tm = tilemapM.get(entity);
             Vector2 pos = new Vector2(tm.TileToChunkPosition(tm.WorldToTilePosition(GameCamera.GetMain().getPosition())));

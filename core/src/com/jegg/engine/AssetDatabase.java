@@ -16,6 +16,7 @@ public class AssetDatabase {
         textures.put("rock-tile", new Texture(Gdx.files.internal("rock-tile-32px.png")));
         textures.put("octagon", new Texture(Gdx.files.internal("octagon-256px.png")));
         textures.put("ship-triangle", new Texture(Gdx.files.internal("ship-triangle.png")));
+        textures.put("ship2", new Texture(Gdx.files.internal("ship2.png")));
     }
 
     public static Texture GetTexture(String name){

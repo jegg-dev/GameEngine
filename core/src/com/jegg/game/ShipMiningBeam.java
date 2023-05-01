@@ -19,7 +19,7 @@ public class ShipMiningBeam {
     public float beamTime = 0.0f;
     public float beamTimer = 0;
 
-    public int strength = 1;
+    public int strength = 5;
     public float miningSpeed = 0.1f;
     public float miningProgress;
     public Body miningBody;

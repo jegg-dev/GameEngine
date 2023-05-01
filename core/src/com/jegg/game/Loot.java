@@ -16,11 +16,14 @@ import com.jegg.engine.physics.Rigidbody;
 import com.jegg.engine.rendering.SpriteRenderer;
 
 public class Loot extends IteratedEntity implements ISensorContactListener {
+    public ItemInstance item;
     private float timer = 5f;
     private final float chaseSpeed = 25.0f;
     private PlayerShip targetShip;
 
-    public Loot(Color color){
+    public Loot(ItemInstance item, Color color){
+        this.item = item;
+
         Transform t = Game.CreateComponent(Transform.class);
         add(t);
 
@@ -60,7 +63,7 @@ public class Loot extends IteratedEntity implements ISensorContactListener {
             Transform t = getTransform();
             Transform shipT = targetShip.getTransform();
             if(Vector2.dst(t.getPosition2().x, t.getPosition2().y, shipT.getPosition2().x, shipT.getPosition2().y) < 0.5f){
-                targetShip.inventory.addItem(new ItemInstance(0, 1));
+                targetShip.inventory.addItem(item);
                 Game.DestroyEntity(this);
             }
             else {

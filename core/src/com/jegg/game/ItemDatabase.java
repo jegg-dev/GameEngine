@@ -6,7 +6,8 @@ import java.util.HashMap;
 public class ItemDatabase {
     private static final HashMap<Item, Integer> ItemMap;
     private static final Item[] Items = {
-        new Item("Item", AssetDatabase.GetTexture("square"), 10, 0)
+            new Item("Rock", AssetDatabase.GetTexture("square"), 100, 0),
+            new Item("Pink Ore", AssetDatabase.GetTexture("square"), 100, 0)
     };
 
     static{

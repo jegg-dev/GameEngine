@@ -111,7 +111,7 @@ public class DesktopLauncher {
 			//ship.getComponent(Rigidbody.class).body.setTransform(new Vector2(500,0), 0);
 
 			new Station();
-			new AIShip(playerShip);
+			//new AIShip(playerShip);
 			//new LineDrawing();
 			//new RigidbodyDraw();
 		}), config);

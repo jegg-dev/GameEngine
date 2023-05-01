@@ -36,8 +36,8 @@ public class PlayerShip extends IteratedEntity implements IDamageable {
 
     public TerrainController tc;
 
-    public float thrustForce = 75;
-    public float turnTorque = 100;
+    public float thrustForce = 60;
+    public float turnTorque = 75;
 
     public Entity stars;
 
@@ -68,13 +68,14 @@ public class PlayerShip extends IteratedEntity implements IDamageable {
                 1f, -1,
                 -1f, -1
         };
-        //poly.poly = new Polygon(verts);
-        //poly.color = Color.GOLD;
+        Polygon polyVerts = new Polygon(verts);
+        polyVerts.setScale(1.0f, 1.0f);
+        verts = polyVerts.getTransformedVertices();
 
         SpriteRenderer sr = Game.CreateComponent(SpriteRenderer.class);
-        sr.setTexture(AssetDatabase.GetTexture("ship-triangle"), 256, 256);
+        sr.setTexture(AssetDatabase.GetTexture("ship2"), 256, 256);
         sr.setColor(Color.GRAY);
-        t.scale.set(0.2f, 0.2f);
+        t.scale.set(0.25f, 0.25f);
         add(sr);
 
         trail = Game.CreateComponent(ParticleSystem.class);
@@ -100,7 +101,6 @@ public class PlayerShip extends IteratedEntity implements IDamageable {
         add(trail);
 
         Polygon scaledVerts = new Polygon(verts);
-        scaledVerts.scale(0.1f);
         Rigidbody rb = Game.CreateRigidbody(scaledVerts.getTransformedVertices(), BodyDef.BodyType.DynamicBody, 1);
         rb.body.setUserData(this);
         rb.body.setBullet(true);
@@ -198,7 +198,7 @@ public class PlayerShip extends IteratedEntity implements IDamageable {
         }
         else if(Input.getKey(Input.Mouse1) && fireTime <= 0){
             Vector2 dir = turret.getComponent(Transform.class).getPosition2().sub(mousePos);
-            Projectile p = new Projectile(this);
+            Projectile p = new BombProjectile(this);
             p.getComponent(Rigidbody.class).body.setTransform(turret.getComponent(Transform.class).getPosition2(), MathUtils.atan2(dir.y, dir.x) + MathUtils.HALF_PI);
             p.getTransform().setPosition(turret.getComponent(Transform.class).getPosition());
             p.getTransform().setRotation(MathUtils.atan2(dir.y, dir.x) * MathUtils.radiansToDegrees + 90);

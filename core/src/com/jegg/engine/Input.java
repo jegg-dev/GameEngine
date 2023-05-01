@@ -63,6 +63,7 @@ public class Input implements InputProcessor {
     public static int Tab = com.badlogic.gdx.Input.Keys.TAB;
     public static int Space = com.badlogic.gdx.Input.Keys.SPACE;
     public static int Escape = com.badlogic.gdx.Input.Keys.ESCAPE;
+    public static int Enter = com.badlogic.gdx.Input.Keys.ENTER;
     public static int Num1 = com.badlogic.gdx.Input.Keys.NUM_1;
     public static int Num2 = com.badlogic.gdx.Input.Keys.NUM_2;
     public static int Num3 = com.badlogic.gdx.Input.Keys.NUM_3;
