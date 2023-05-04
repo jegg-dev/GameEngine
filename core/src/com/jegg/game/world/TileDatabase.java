@@ -1,8 +1,10 @@
-package com.jegg.game;
+package com.jegg.game.world;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.jegg.engine.AssetDatabase;
+import com.jegg.game.ItemInstance;
+import com.jegg.game.TurretEnemy;
 
 public class TileDatabase {
     private static final Tile[] Tiles = new Tile[]{

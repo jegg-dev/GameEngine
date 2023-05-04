@@ -4,12 +4,10 @@ import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.SortedIteratingSystem;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
@@ -17,8 +15,8 @@ import com.badlogic.gdx.utils.Array;
 import com.jegg.engine.GameCamera;
 import com.jegg.engine.ecs.InactiveFlag;
 import com.jegg.engine.rendering.ZComparator;
-import com.jegg.game.TerrainMap;
-import com.jegg.game.TileDatabase;
+import com.jegg.game.world.TerrainMap;
+import com.jegg.game.world.TileDatabase;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -46,8 +44,6 @@ public class TilemapRenderSystem extends SortedIteratingSystem {
     @Override
     public void update(float deltaTime){
         super.update(deltaTime);
-
-
 
         for(Entity entity : renderQueueList){
             RenderedTilemap tm = tilemapM.get(entity);
@@ -93,8 +89,6 @@ public class TilemapRenderSystem extends SortedIteratingSystem {
                     }
                 }
             }*/
-
-
             for(int chunkX = worldStartX; chunkX < worldEndX; chunkX += chunkWidth){
                 for(int chunkY = worldStartY; chunkY < worldEndY; chunkY += chunkWidth){
                     PrimitiveChunk chunk = tm.chunks[tm.getChunkNumByChunkPosition(chunkX, chunkY)];
@@ -102,6 +96,7 @@ public class TilemapRenderSystem extends SortedIteratingSystem {
                         for(int y = 0; y < chunkWidth; y++){
                             Sprite sprite = TileDatabase.Get(chunk.getTile(x, y)).sprite;
                             if(sprite.getTexture() != null){
+                                TextureRegion region = new TextureRegion(sprite.getTexture());
                                 sprite.setOriginBasedPosition((chunkX + x) * tileWidth, (chunkY + y) * tileWidth);
                                 sprite.setScale(1f / sprite.getWidth() * tileWidth);
                                 sprite.draw(batch);

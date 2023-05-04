@@ -12,6 +12,8 @@ import com.jegg.engine.Input;
 import com.jegg.engine.ecs.Transform;
 import com.jegg.engine.physics.Physics;
 import com.jegg.engine.physics.RaycastHit;
+import com.jegg.game.world.TerrainController;
+import com.jegg.game.world.TileDatabase;
 
 public class ShipMiningBeam {
     public PlayerShip playerShip;

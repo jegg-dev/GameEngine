@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.physics.box2d.Shape;
@@ -34,6 +35,8 @@ public class Game extends ApplicationAdapter {
 	public static boolean debugging = false;
 	private final static Array<IIteratedBehavior> scripts = new Array<>();
 	public static Array<DebugLine> lines = new Array<>();
+
+	public static OrthogonalTiledMapRenderer TileRenderer;
 
 	public Game(StartupAction startup){
 		super();
@@ -127,6 +130,11 @@ public class Game extends ApplicationAdapter {
 		engine.update(Gdx.graphics.getDeltaTime());
 
 		batch.end();
+
+		if(TileRenderer != null) {
+			TileRenderer.setView(gameCamera.orthoCam);
+			TileRenderer.render();
+		}
 
 		shapeRenderer.setProjectionMatrix(gameCamera.getCombined());
 		shapeRenderer.begin(ShapeRenderer.ShapeType.Line);

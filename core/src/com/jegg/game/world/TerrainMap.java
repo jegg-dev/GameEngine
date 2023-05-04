@@ -1,4 +1,4 @@
-package com.jegg.game;
+package com.jegg.game.world;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.maps.tiled.TiledMap;
@@ -9,7 +9,6 @@ import com.jegg.engine.Input;
 import com.jegg.engine.Random;
 import com.jegg.engine.physics.Physics;
 import com.jegg.engine.tilemap.*;
-
 import java.util.ArrayList;
 
 public class TerrainMap extends RenderedTilemap {
@@ -23,26 +22,22 @@ public class TerrainMap extends RenderedTilemap {
     public ArrayList<Integer> loadedChunkNums = new ArrayList<>();
     public ArrayList<Integer> activeChunkNums = new ArrayList<>();
 
+    private static TilemapBiome[] biomes = {
+            new TilemapBiome(TilemapBiome.DefaultTileLevels, 25.0f),
+            new TilemapBiome(new IndexLevelPair[]{
+                    new IndexLevelPair(2, 0.35f, 0.5f),
+                    new IndexLevelPair(4, 0.5f, 0.65f),
+                    new IndexLevelPair(5, 0.65f, 0.7f)
+            }, 15.0f)
+    };
+
     public float zLevel;
-    public float amplitude = 25.0f;
-    public Integer[] tileCache = new Integer[0];
+    public float amplitude = 300.0f;
+    public Integer[] biomeCache;
 
-    static class TileLevelPair{
-        int tileIndex;
-        float minLevel, maxLevel;
-
-        TileLevelPair(int tileIndex, float minLevel, float maxLevel){
-            this.tileIndex = tileIndex;
-            this.maxLevel = maxLevel;
-            this.minLevel = minLevel;
-        }
-    }
-
-    public static final TileLevelPair[] tileLevels = new TileLevelPair[]{
-            new TileLevelPair(2, 0.5f, 0.55f),
-            new TileLevelPair(3, 0.55f, 0.6f),
-            new TileLevelPair(4, 0.6f, 0.65f),
-            new TileLevelPair(5, 0.65f, 0.7f)
+    public IndexLevelPair[] biomeLevels = {
+            new IndexLevelPair(0, -1.0f, 0.3f),
+            new IndexLevelPair(1, 0.3f, 1.0f)
     };
 
     public TerrainMap(int mapWidthInChunks, int chunkWidth, float tileWidth, int viewDist) {
@@ -52,18 +47,7 @@ public class TerrainMap extends RenderedTilemap {
         entityMap = new Tilemap<>(mapWidthInChunks, chunkWidth, tileWidth);
         lastChunkNum = Integer.MAX_VALUE;
 
-        ArrayList<Integer> tiles = new ArrayList<>();
-        for(int i = 0; i < 2000; i++){
-            for(TileLevelPair tl : tileLevels){
-                if((i - 1000.0f) / 1000.0f >= tl.minLevel && (i - 1000.0f) / 1000.0f < tl.maxLevel){
-                    tiles.add(tl.tileIndex);
-                    break;
-                }
-            }
-            if(tiles.size() != i + 1)
-                tiles.add(0);
-        }
-        tileCache = tiles.toArray(tileCache);
+        biomeCache = IndexLevelPair.FillRange(biomeLevels, 2000);
     }
 
     @Override
@@ -121,7 +105,7 @@ public class TerrainMap extends RenderedTilemap {
                 for (int y2 = 0; y2 < getChunkWidth(); y2++) {
                     if (chunk.getTile(x2, y2) == 0) {
                         float z = Random.Perlin((float) (x + x2) / amplitude, (float) (y + y2) / amplitude, zLevel);
-                        int tile = tileCache[(int) (MathUtils.clamp(z, -1.0f, 1.0f) * 1000) + 999];
+                        int tile = biomes[biomeCache[(int) (MathUtils.clamp(z, -1.0f, 1.0f) * 1000) + 999]].GetTile(x + x2, y + y2);
                         if(tile != 0) {
                             chunk.setTile(x2, y2, tile);
                             if(TileDatabase.Get(tile).useCollider) {
@@ -171,6 +155,11 @@ public class TerrainMap extends RenderedTilemap {
             }
         }
         collider.chunks.set(chunkNum, null);
+    }
+
+    public int SampleBiomeIndex(int x, int y){
+        float z = Random.Perlin((float) (x) / amplitude, (float) (y) / amplitude, zLevel);
+        return biomeCache[(int) (MathUtils.clamp(z, -1.0f, 1.0f) * 1000) + 999];
     }
 
     @Override

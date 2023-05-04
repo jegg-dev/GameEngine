@@ -10,6 +10,7 @@ import com.jegg.engine.Game;
 import com.jegg.engine.physics.Rigidbody;
 import com.jegg.engine.ecs.Transform;
 import com.jegg.engine.rendering.PolygonSpriteRenderer;
+import com.jegg.game.world.Spacemap;
 
 public class Asteroid extends Entity {
     public void Hit(){

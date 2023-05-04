@@ -1,4 +1,4 @@
-package com.jegg.game;
+package com.jegg.game.world;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.Color;
@@ -13,6 +13,7 @@ import com.jegg.engine.rendering.PolygonSpriteRenderer;
 import com.jegg.engine.tilemap.PrimitiveChunk;
 import com.jegg.engine.tilemap.PrimitiveTilemap;
 import com.jegg.engine.tilemap.Tilemap;
+import com.jegg.game.Asteroid;
 
 import java.util.ArrayList;
 

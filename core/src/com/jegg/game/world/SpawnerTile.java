@@ -1,4 +1,4 @@
-package com.jegg.game;
+package com.jegg.game.world;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.Color;
@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector3;
 import com.jegg.engine.Game;
 import com.jegg.engine.ecs.ComponentMappers;
+import com.jegg.game.IDamageable;
 
 public class SpawnerTile<T extends Entity> extends Tile{
     public Class<T> entityType;

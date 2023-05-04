@@ -21,9 +21,11 @@ import com.jegg.engine.physics.RaycastHit;
 import com.jegg.engine.physics.Rigidbody;
 import com.jegg.engine.rendering.PolygonRenderer;
 import com.jegg.engine.rendering.SpriteRenderer;
+import com.jegg.game.world.Station;
+import com.jegg.game.world.TerrainController;
 
 public class PlayerShip extends IteratedEntity implements IDamageable {
-    public Player player;
+    public Station homeStation;
     public int health = 100;
     public Inventory inventory = new Inventory(4);
 
@@ -128,7 +130,7 @@ public class PlayerShip extends IteratedEntity implements IDamageable {
         stars = Game.CreateWorldEntity(new Vector3(0, 0, 0), 0);
         SpriteRenderer sr3 = Game.CreateComponent(SpriteRenderer.class);
         Texture tx = new Texture(Gdx.files.internal("stars-new.png"));
-        sr3.setTexture(tx, 4096, 4096);
+        sr3.setTexture(tx, 8192, 8192);
         sr3.setColor(Color.WHITE);
         sr3.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
         stars.add(sr3);
@@ -172,6 +174,15 @@ public class PlayerShip extends IteratedEntity implements IDamageable {
         healthBar.setValue(health);
         healthLabel.setText(health + "/100");
 
+        if(health <= 0 && homeStation != null){
+            Entity dock = homeStation.docks.get(MathUtils.random(0, homeStation.numDocks - 1));
+            t.setPosition(dock.getComponent(Transform.class).getPosition());
+            rb.body.setTransform(dock.getComponent(Transform.class).getPosition2(), 0);
+            rb.body.setAngularVelocity(0);
+            rb.body.setLinearVelocity(0, 0);
+            health = 100;
+        }
+        
         /*if(rb.body.getLinearVelocity().len() > 15.0f){
             rb.body.setLinearVelocity(rb.body.getLinearVelocity().nor().scl(15.0f));
         }*/
@@ -208,17 +219,19 @@ public class PlayerShip extends IteratedEntity implements IDamageable {
 
         if(Input.getKeyUp(Input.E)){
             AABBHit[] hits2 = Physics.AABBAll(t.getPosition2(), 1f,1f);
-            for(AABBHit hit : hits2){
-                if(hit.entity instanceof Station){
-                    rb.body.setTransform(((Entity)hit.fixture.getUserData()).getComponent(Transform.class).getPosition2(), 0);
-                    rb.body.setLinearVelocity(0,0);
-                    rb.body.setAngularVelocity(0);
+            if(hits2 != null) {
+                for (AABBHit hit : hits2) {
+                    if (hit.entity instanceof Station) {
+                        rb.body.setTransform(((Entity) hit.fixture.getUserData()).getComponent(Transform.class).getPosition2(), 0);
+                        rb.body.setLinearVelocity(0, 0);
+                        rb.body.setAngularVelocity(0);
                     /*player.remove(InactiveFlag.class);
                     player.getComponent(Rigidbody.class).body.setTransform(getTransform().getPosition2(), 0);
                     player.getComponent(Rigidbody.class).body.setActive(true);
                     remove(IteratedFlag.class);
                     rb.body.setType(BodyDef.BodyType.StaticBody);*/
-                    break;
+                        break;
+                    }
                 }
             }
         }

@@ -1,4 +1,4 @@
-package com.jegg.game;
+package com.jegg.game.world;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Sprite;

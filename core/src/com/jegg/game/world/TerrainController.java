@@ -1,4 +1,4 @@
-package com.jegg.game;
+package com.jegg.game.world;
 
 import com.badlogic.gdx.math.Vector3;
 import com.jegg.engine.Game;

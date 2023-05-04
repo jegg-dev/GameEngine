@@ -1,10 +1,12 @@
-package com.jegg.game;
+package com.jegg.game.world;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector3;
 import com.jegg.engine.physics.Rigidbody;
 import com.jegg.engine.ecs.Transform;
+import com.jegg.game.ItemInstance;
+import com.jegg.game.Loot;
 
 public class LootTile extends Tile{
     public ItemInstance lootItem;

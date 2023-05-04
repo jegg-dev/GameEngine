@@ -17,6 +17,7 @@ import com.jegg.engine.particles.ParticleSystem;
 import com.jegg.engine.physics.Rigidbody;
 import com.jegg.engine.rendering.PolygonRenderer;
 import com.jegg.engine.rendering.SpriteRenderer;
+import com.jegg.game.world.TerrainController;
 
 public class BombProjectile extends Projectile{
     public BombProjectile(Entity owner) {
