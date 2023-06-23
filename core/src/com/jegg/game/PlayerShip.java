@@ -29,7 +29,7 @@ public class PlayerShip extends IteratedEntity implements IDamageable {
     public int health = 100;
     public Inventory inventory = new Inventory(4);
 
-    public float zoom = 8.0f;
+    public float zoom = 6.0f;
 
     public ProgressBar healthBar;
     public Label healthLabel;
@@ -38,8 +38,8 @@ public class PlayerShip extends IteratedEntity implements IDamageable {
 
     public TerrainController tc;
 
-    public float thrustForce = 60;
-    public float turnTorque = 75;
+    public float thrustForce = 10;
+    public float turnTorque = 5;
 
     public Entity stars;
 
@@ -71,13 +71,13 @@ public class PlayerShip extends IteratedEntity implements IDamageable {
                 -1f, -1
         };
         Polygon polyVerts = new Polygon(verts);
-        polyVerts.setScale(1.0f, 1.0f);
+        polyVerts.setScale(0.5f, 0.5f);
         verts = polyVerts.getTransformedVertices();
 
         SpriteRenderer sr = Game.CreateComponent(SpriteRenderer.class);
         sr.setTexture(AssetDatabase.GetTexture("ship2"), 256, 256);
         sr.setColor(Color.GRAY);
-        t.scale.set(0.25f, 0.25f);
+        t.scale.set(0.125f, 0.125f);
         add(sr);
 
         trail = Game.CreateComponent(ParticleSystem.class);
@@ -85,9 +85,9 @@ public class PlayerShip extends IteratedEntity implements IDamageable {
         trail.particleVerts = PolygonRenderer.boxVerts;
         trail.particleSprite = new Sprite(AssetDatabase.GetTexture("square"), 16, 16);
         trail.particleColor = Color.PURPLE;
-        trail.particleScale.set(0.04f, 0.04f);
+        trail.particleScale.set(0.02f, 0.02f);
         trail.particleLocalVelocity.set(0, -5f);
-        trail.emissionLocalOffset.set(0, -1f);
+        trail.emissionLocalOffset.set(0, -0.6f);
         trail.useConeEmission = true;
         trail.coneEmissionRotation = 270;
         trail.coneEmissionAngle = 45;
@@ -130,7 +130,7 @@ public class PlayerShip extends IteratedEntity implements IDamageable {
         stars = Game.CreateWorldEntity(new Vector3(0, 0, 0), 0);
         SpriteRenderer sr3 = Game.CreateComponent(SpriteRenderer.class);
         Texture tx = new Texture(Gdx.files.internal("stars-new.png"));
-        sr3.setTexture(tx, 8192, 8192);
+        sr3.setTexture(tx, 16384, 16384);
         sr3.setColor(Color.WHITE);
         sr3.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
         stars.add(sr3);
